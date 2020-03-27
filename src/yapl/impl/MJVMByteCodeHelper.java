@@ -46,6 +46,7 @@ public class MJVMByteCodeHelper {
         totalCode.add((byte)0);
         totalCode.add((byte)0);
         totalCode.add((byte)0);
+
         return listToPrimitiveByte(totalCode);
     }
 

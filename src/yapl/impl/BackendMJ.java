@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class BackendMJ implements BackendBinSM {
 
-
+	private final int wordSize = 4;
     private List<Byte> code = new ArrayList<>();
     private List<Byte> sData = new ArrayList<>();
     private HashMap<String, Integer> labels = new HashMap<>();
@@ -30,6 +30,7 @@ public class BackendMJ implements BackendBinSM {
             sData.add((byte)0);
         }
     }
+
 
     @Override
     public int wordSize() {
@@ -79,7 +80,10 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public int allocStringConstant(String string) {
+
         int startAddress = sData.size()/MJVMInstructions.WORD_SIZE;
+//        int startAddress = sData.size();
+
 
         for (byte b : string.getBytes()) {
             sData.add(b);
@@ -94,7 +98,6 @@ public class BackendMJ implements BackendBinSM {
                 sData.add((byte) 0x00);
             }
         }
-
 
         return startAddress;
     }

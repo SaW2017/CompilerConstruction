@@ -4,7 +4,6 @@ public class MJVMInstructions {
 
     public static final int WORD_SIZE = 4;
 
-
     public static final byte LOAD = 0x01;
     public static final byte LOAD0 = 0x02;
     public static final byte LOAD1 = 0x03;
@@ -68,5 +67,3 @@ public class MJVMInstructions {
     public static final byte BPRINT = 0x35;
     public static final byte TRAP = 0x36;
     public static final byte SPRINT = 0x37;
-
-}
