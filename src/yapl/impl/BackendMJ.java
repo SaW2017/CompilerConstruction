@@ -5,8 +5,15 @@ import yapl.interfaces.MemoryRegion;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BackendMJ implements BackendBinSM {
+
+    private final int wordSize = 4;
+    private List<Byte> code = new ArrayList<>();
+    private List<Byte> sData = new ArrayList<>();
+
     @Override
     public int wordSize() {
         return 0;
@@ -14,7 +21,7 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public int boolValue(boolean value) {
-        return 0;
+        return value ? 1 : 0;
     }
 
     @Override
@@ -24,7 +31,7 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void writeObjectFile(OutputStream outStream) throws IOException {
-
+        outStream.write(MJVMByteCodeHelper.createByteCode(code, sData, 0));
     }
 
     @Override
@@ -34,7 +41,15 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public int allocStringConstant(String string) {
-        return 0;
+        int startAddress = sData.size();
+
+        for (byte b : string.getBytes()) {
+            sData.add(b);
+        }
+
+        sData.add((byte) 0x00);
+
+        return startAddress;
     }
 
     @Override
@@ -104,27 +119,27 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void add() {
-
+        code.add(MJVMInstructions.ADD);
     }
 
     @Override
     public void sub() {
-
+        code.add(MJVMInstructions.SUB);
     }
 
     @Override
     public void mul() {
-
+        code.add(MJVMInstructions.MUL);
     }
 
     @Override
     public void div() {
-
+        code.add(MJVMInstructions.DIV);
     }
 
     @Override
     public void mod() {
-
+        code.add(MJVMInstructions.REM);
     }
 
     @Override
