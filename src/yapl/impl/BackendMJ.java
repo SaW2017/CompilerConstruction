@@ -10,13 +10,13 @@ import java.util.List;
 
 public class BackendMJ implements BackendBinSM {
 
-    private final int wordSize = 4;
+
     private List<Byte> code = new ArrayList<>();
     private List<Byte> sData = new ArrayList<>();
 
     @Override
     public int wordSize() {
-        return 4;
+        return MJVMInstructions.WORD_SIZE;
     }
 
     @Override
@@ -31,12 +31,6 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void writeObjectFile(OutputStream outStream) throws IOException {
-
-        byte[] byteCode = MJVMByteCodeHelper.createByteCode(code, sData, 0);
-
-        for(byte b : byteCode){
-            System.out.println(" -> " + b);
-        }
         outStream.write(MJVMByteCodeHelper.createByteCode(code, sData, 0));
     }
 
@@ -54,6 +48,15 @@ public class BackendMJ implements BackendBinSM {
         }
 
         sData.add((byte) 0x00);
+
+        //fill the rest of the remaining word with zeros
+        int remWord = sData.size()%MJVMInstructions.WORD_SIZE;
+        if(remWord != 0){
+            for(int i = wordSize()-remWord; i > 0; i--){
+                sData.add((byte) 0x00);
+            }
+        }
+
 
         return startAddress;
     }

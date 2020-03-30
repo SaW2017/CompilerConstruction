@@ -17,29 +17,19 @@ public class MJVMByteCodeHelper {
         totalCode.add(HEADER2);
 
         //codeSize
-        /*
-        totalCode.add((byte)(code.size()>>24));
-        totalCode.add((byte)(code.size()>>16));
-        totalCode.add((byte)(code.size()>>8));
-        totalCode.add((byte)(code.size()));
-        */
-        totalCode.add((byte)((code.size()+1)>>24));
-        totalCode.add((byte)((code.size()+1)>>16));
-        totalCode.add((byte)((code.size()+1)>>8));
-        totalCode.add((byte)(code.size()+1));
+        //+1 because we need to add 0x2F to the end of the code
+        int codeSize = code.size() + 1;
+        totalCode.add((byte)(codeSize>>24));
+        totalCode.add((byte)(codeSize>>16));
+        totalCode.add((byte)(codeSize>>8));
+        totalCode.add((byte)(codeSize));
 
         //static data area in words
-        //TODO: Muss womöglich durch 4 geteilt werden da s32!!!
-        /*
-        totalCode.add((byte)(sData.size()>>24));
-        totalCode.add((byte)(sData.size()>>16));
-        totalCode.add((byte)(sData.size()>>8));
-        totalCode.add((byte)(sData.size()));
-        */
-        totalCode.add((byte)(0));
-        totalCode.add((byte)(0));
-        totalCode.add((byte)(0));
-        totalCode.add((byte)(4));
+        int sDataSize = sData.size()/MJVMInstructions.WORD_SIZE;
+        totalCode.add((byte)(sDataSize>>24));
+        totalCode.add((byte)(sDataSize>>16));
+        totalCode.add((byte)(sDataSize>>8));
+        totalCode.add((byte)(sDataSize));
 
         //startPC
         totalCode.add((byte)(pcStart>>24));
@@ -49,8 +39,7 @@ public class MJVMByteCodeHelper {
 
         //add code
         totalCode.addAll(code);
-
-        totalCode.add((byte)0x2f);
+        totalCode.add(MJVMInstructions.RETURN);
 
         //add static data
         totalCode.addAll(sData);

@@ -10,7 +10,8 @@ M. Taschwer, March 2016
 	<property name="build" location="${globalbasedir}/ant-bin"/>
     <property name="ant-contrib-jar" location="${globalbasedir}/lib/ant-contrib.jar"/>
     <property name="mj-jar" location="${globalbasedir}/mjvm/mj.jar"/>
-    
+
+	<!--TODO add testnames here-->
     <!-- list of Java test classes -->
     <property name="testclasses" value="Test1,Test2,Test3,Test4,Test5,Test6"/>
     
@@ -21,7 +22,7 @@ M. Taschwer, March 2016
     <property name="truefile" location="Test1.true"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${ant-contrib-jar}"/>
-	
+
 	<target name="init">
 		<mkdir dir="${build}" />
 	</target>

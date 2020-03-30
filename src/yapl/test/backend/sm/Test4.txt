@@ -1,1 +1,2 @@
--- error reading file C:\Users\Klaus\Documents\GitHub\compiler_construction\src\yapl\test\backend\sm\Test4.mj
+
+-- exception at address 0: expression stack underflow
