@@ -22,7 +22,7 @@ M. Taschwer, March 2016
     <property name="truefile" location="Test1.true"/>
 
     <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${ant-contrib-jar}"/>
-	
+
 	<target name="init">
 		<mkdir dir="${build}" />
 	</target>
