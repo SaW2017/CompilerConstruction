@@ -16,7 +16,7 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public int wordSize() {
-        return 0;
+        return 4;
     }
 
     @Override
@@ -31,6 +31,12 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void writeObjectFile(OutputStream outStream) throws IOException {
+
+        byte[] byteCode = MJVMByteCodeHelper.createByteCode(code, sData, 0);
+
+        for(byte b : byteCode){
+            System.out.println(" -> " + b);
+        }
         outStream.write(MJVMByteCodeHelper.createByteCode(code, sData, 0));
     }
 
@@ -109,7 +115,9 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void writeString(int addr) {
-
+        code.add(MJVMInstructions.SPRINT);
+        code.add((byte)(addr>>8));
+        code.add((byte)(addr));
     }
 
     @Override

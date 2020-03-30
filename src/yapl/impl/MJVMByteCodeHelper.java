@@ -17,17 +17,29 @@ public class MJVMByteCodeHelper {
         totalCode.add(HEADER2);
 
         //codeSize
+        /*
         totalCode.add((byte)(code.size()>>24));
         totalCode.add((byte)(code.size()>>16));
         totalCode.add((byte)(code.size()>>8));
         totalCode.add((byte)(code.size()));
+        */
+        totalCode.add((byte)((code.size()+1)>>24));
+        totalCode.add((byte)((code.size()+1)>>16));
+        totalCode.add((byte)((code.size()+1)>>8));
+        totalCode.add((byte)(code.size()+1));
 
         //static data area in words
         //TODO: Muss womöglich durch 4 geteilt werden da s32!!!
+        /*
         totalCode.add((byte)(sData.size()>>24));
         totalCode.add((byte)(sData.size()>>16));
         totalCode.add((byte)(sData.size()>>8));
         totalCode.add((byte)(sData.size()));
+        */
+        totalCode.add((byte)(0));
+        totalCode.add((byte)(0));
+        totalCode.add((byte)(0));
+        totalCode.add((byte)(4));
 
         //startPC
         totalCode.add((byte)(pcStart>>24));
@@ -38,9 +50,13 @@ public class MJVMByteCodeHelper {
         //add code
         totalCode.addAll(code);
 
+        totalCode.add((byte)0x2f);
+
         //add static data
         totalCode.addAll(sData);
-
+        totalCode.add((byte)0);
+        totalCode.add((byte)0);
+        totalCode.add((byte)0);
         return listToPrimitiveByte(totalCode);
     }
 
