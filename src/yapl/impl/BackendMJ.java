@@ -6,6 +6,7 @@ import yapl.interfaces.MemoryRegion;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class BackendMJ implements BackendBinSM {
@@ -13,6 +14,9 @@ public class BackendMJ implements BackendBinSM {
 
     private List<Byte> code = new ArrayList<>();
     private List<Byte> sData = new ArrayList<>();
+    private HashMap<String, Integer> labels = new HashMap<>();
+    private int pcStart = 0;
+
 
     @Override
     public int wordSize() {
@@ -31,7 +35,7 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void writeObjectFile(OutputStream outStream) throws IOException {
-        outStream.write(MJVMByteCodeHelper.createByteCode(code, sData, 0));
+        outStream.write(MJVMByteCodeHelper.createByteCode(code, sData, pcStart));
     }
 
     @Override
@@ -83,12 +87,24 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void loadConst(int value) {
-
+        code.add(MJVMInstructions.CONST);
+        code.add((byte) (value>>24));
+        code.add((byte) (value>>16));
+        code.add((byte) (value>>8));
+        code.add((byte) value);
     }
 
     @Override
     public void loadWord(MemoryRegion region, int offset) {
+        if(region == MemoryRegion.STACK){
+            code.add(MJVMInstructions.LOAD);
+            code.add((byte)(offset>>8));
+            code.add((byte)offset);
+        }else if(region == MemoryRegion.STATIC){
 
+        }else{
+
+        }
     }
 
     @Override
@@ -200,21 +216,32 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void callProc(String label) {
+        int address = labels.get(label);
 
+        code.add(MJVMInstructions.CALL);
+        code.add((byte)(address>>8));
+        code.add((byte)address);
     }
 
     @Override
     public void enterProc(String label, int nParams, boolean main) {
-
+        labels.put(label, code.size());
+        if(main){
+            pcStart = code.size();
+        }
+        code.add(MJVMInstructions.ENTER);
+        code.add((byte)nParams); //s8 nparams
+        code.add((byte)nParams);  //s8 framesize ?!
     }
 
     @Override
     public void exitProc(String label) {
-
+        code.add(MJVMInstructions.EXIT);
+        code.add(MJVMInstructions.RETURN);
     }
 
     @Override
     public int paramOffset(int index) {
-        return 0;
+        return index;
     }
 }
