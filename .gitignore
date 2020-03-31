@@ -40,7 +40,7 @@
 *.dmg
 *.gz
 *.iso
-*.jar
+#*.jar
 *.rar
 *.tar
 *.zip
@@ -61,3 +61,4 @@
 ehthumbs.db
 Thumbs.db
 .idea/misc.xml
+
