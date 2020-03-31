@@ -1,2 +1,3 @@
-
--- exception at address 5: wrong opcode 0
+0
+1
+2

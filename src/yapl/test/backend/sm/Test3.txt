@@ -1,2 +1,4 @@
-
--- exception at address 5: wrong opcode 0
+Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 8 out of bounds for length 5
+	at MJ.Run.interpret(Run.java:449)
+	at MJ.Run.main(Run.java:485)
+True

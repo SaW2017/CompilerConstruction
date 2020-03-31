@@ -98,7 +98,6 @@ public class BackendMJ implements BackendBinSM {
     public void loadWord(MemoryRegion region, int offset) {
         if(region == MemoryRegion.STACK){
             code.add(MJVMInstructions.LOAD);
-            code.add((byte)(offset>>8));
             code.add((byte)offset);
         }else if(region == MemoryRegion.STATIC){
 
@@ -129,6 +128,9 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void writeInteger() {
+        //anscheinend wurde im testcase davon ausgegangen, dass hier immer ohne anführende leerzeichen geprinted wird
+        code.add(MJVMInstructions.CONST0); //deshalb muss diese konstante auf den stack weil print t0 und t1 braucht
+        code.add(MJVMInstructions.PRINT);
 
     }
 
@@ -217,7 +219,6 @@ public class BackendMJ implements BackendBinSM {
     @Override
     public void callProc(String label) {
         int address = labels.get(label);
-
         code.add(MJVMInstructions.CALL);
         code.add((byte)(address>>8));
         code.add((byte)address);
