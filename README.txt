@@ -1,1 +1,1 @@
-compile with ant -buildfile build-dist.xml eval
+compile with ant -buildfile build-dist.xml "eval-all"
