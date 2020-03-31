@@ -1,4 +1,4 @@
 Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 8 out of bounds for length 5
-	at MJ.Run.interpret(Unknown Source)
-	at MJ.Run.main(Unknown Source)
+	at MJ.Run.interpret(Run.java:449)
+	at MJ.Run.main(Run.java:485)
 True
