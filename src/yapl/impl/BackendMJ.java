@@ -183,7 +183,7 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void arrayLength() {
-
+        code.add(MJVMInstructions.ARRAY_LENGTH);
     }
 
     @Override
