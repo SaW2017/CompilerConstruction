@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BackendMJ implements BackendBinSM {
 
@@ -15,8 +16,12 @@ public class BackendMJ implements BackendBinSM {
     private List<Byte> code = new ArrayList<>();
     private List<Byte> sData = new ArrayList<>();
     private HashMap<String, Integer> labels = new HashMap<>();
+    private HashMap<String, Integer> unknownLabels = new HashMap<>();
     private int pcStart = 0;
 
+    public BackendMJ(){
+
+    }
 
     @Override
     public int wordSize() {
@@ -30,11 +35,26 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void assignLabel(String label) {
-
+        labels.put(label, code.size());
     }
 
     @Override
     public void writeObjectFile(OutputStream outStream) throws IOException {
+
+        //link unknown labels
+        for(Map.Entry<String, Integer> entry : unknownLabels.entrySet()) {
+
+
+            String label = entry.getKey();
+            int replaceAddress = entry.getValue();
+            int labelAddress = labels.get(label);
+
+            System.out.println("Replace unknowlabel: " + label + " on address [" + replaceAddress + "] to address [" + labelAddress + "]");
+
+            code.set(replaceAddress, (byte)(labelAddress>>8));
+            code.set(replaceAddress+1, (byte)labelAddress);
+        }
+
         outStream.write(MJVMByteCodeHelper.createByteCode(code, sData, pcStart));
     }
 
@@ -143,7 +163,7 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void neg() {
-
+        code.add(MJVMInstructions.NEG);
     }
 
     @Override
@@ -208,24 +228,51 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void branchIf(boolean value, String label) {
-
+        if(value){
+            code.add(MJVMInstructions.CONST1);    //for true
+        }else{
+            code.add(MJVMInstructions.CONST0);    //for false
+        }
+        //unknownLabels.put(label, code.size());
+        code.add(MJVMInstructions.JEQ);
+        unknownLabels.put(label, code.size());
+        code.add((byte)0);
+        code.add((byte)0);
     }
 
     @Override
     public void jump(String label) {
-
+        //unknownLabels.put(label, code.size());
+        code.add(MJVMInstructions.JMP);
+        unknownLabels.put(label, code.size());
+        code.add((byte)0);
+        code.add((byte)0);
     }
 
     @Override
     public void callProc(String label) {
-        int address = labels.get(label);
-        code.add(MJVMInstructions.CALL);
-        code.add((byte)(address>>8));
-        code.add((byte)address);
+
+
+        //eigentlich hinfällig...
+        if(labels.containsKey(label)){
+            int address = labels.get(label);
+            code.add(MJVMInstructions.CALL);
+            code.add((byte)(address>>8));
+            code.add((byte)address);
+        }else{
+            //das dürfte ausreichen
+            //unknownLabels.put(label, code.size());
+            code.add(MJVMInstructions.CALL);
+            unknownLabels.put(label, code.size());
+            code.add((byte)0);
+            code.add((byte)0);
+        }
+
     }
 
     @Override
     public void enterProc(String label, int nParams, boolean main) {
+
         labels.put(label, code.size());
         if(main){
             pcStart = code.size();
@@ -237,6 +284,8 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void exitProc(String label) {
+
+        labels.put(label, code.size());
         code.add(MJVMInstructions.EXIT);
         code.add(MJVMInstructions.RETURN);
     }
