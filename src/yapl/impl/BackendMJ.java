@@ -19,6 +19,12 @@ public class BackendMJ implements BackendBinSM {
     private HashMap<String, Integer> unknownLabels = new HashMap<>();
     private int pcStart = 0;
 
+
+    //procedure
+    private int fsAddress = 0;
+    private int fsLocalVariables = 0;
+    private int params = 0;
+
     public BackendMJ(){
 
     }
@@ -60,12 +66,18 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public int allocStaticData(int words) {
-        return 0;
+        int startAddress = sData.size()/MJVMInstructions.WORD_SIZE;
+
+        for(int i = 0; i < words*4; i++){
+            sData.add((byte)0);
+        }
+
+        return startAddress;
     }
 
     @Override
     public int allocStringConstant(String string) {
-        int startAddress = sData.size();
+        int startAddress = sData.size()/MJVMInstructions.WORD_SIZE;
 
         for (byte b : string.getBytes()) {
             sData.add(b);
@@ -87,22 +99,34 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public int allocStack(int words) {
-        return 0;
+        fsLocalVariables += words;
+        return params;
     }
 
     @Override
     public void allocHeap(int words) {
-
+        code.add(MJVMInstructions.NEW);
+        code.add((byte)(words>>8));
+        code.add((byte)words);
     }
 
     @Override
     public void storeArrayDim(int dim) {
-
+        int newDim = dim+1;
+        code.add(MJVMInstructions.PUT_STATIC);
+        code.add((byte)(newDim>>8));
+        code.add((byte)newDim);
     }
 
     @Override
     public void allocArray() {
+        int newDim = 1;
+        code.add(MJVMInstructions.GET_STATIC);
+        code.add((byte)(newDim>>8));
+        code.add((byte)newDim);
 
+        code.add(MJVMInstructions.NEW_ARRAY);
+        code.add((byte)16);
     }
 
     @Override
@@ -116,29 +140,45 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void loadWord(MemoryRegion region, int offset) {
+
         if(region == MemoryRegion.STACK){
             code.add(MJVMInstructions.LOAD);
             code.add((byte)offset);
         }else if(region == MemoryRegion.STATIC){
-
+            code.add(MJVMInstructions.GET_STATIC);
+            code.add((byte)(offset>>8));
+            code.add((byte)offset);
         }else{
-
+            code.add(MJVMInstructions.GET_FIELD);
+            code.add((byte)(offset>>8));
+            code.add((byte)offset);
         }
     }
 
     @Override
     public void storeWord(MemoryRegion region, int offset) {
-
+        if(region == MemoryRegion.STACK){
+            code.add(MJVMInstructions.STORE);
+            code.add((byte)offset);
+        }else if(region == MemoryRegion.STATIC){
+            code.add(MJVMInstructions.PUT_STATIC);
+            code.add((byte)(offset>>8));
+            code.add((byte)offset);
+        }else{
+            code.add(MJVMInstructions.PUT_FIELD);
+            code.add((byte)(offset>>8));
+            code.add((byte)offset);
+        }
     }
 
     @Override
     public void loadArrayElement() {
-
+        code.add(MJVMInstructions.ALOAD);
     }
 
     @Override
     public void storeArrayElement() {
-
+        code.add(MJVMInstructions.ASTORE);
     }
 
     @Override
@@ -193,7 +233,7 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void and() {
-
+        code.add(MJVMInstructions.MUL);
     }
 
     @Override
@@ -273,17 +313,25 @@ public class BackendMJ implements BackendBinSM {
     @Override
     public void enterProc(String label, int nParams, boolean main) {
 
+        fsAddress = 0;
+        fsLocalVariables = 0;
+        params = nParams;
+
+
         labels.put(label, code.size());
         if(main){
             pcStart = code.size();
         }
         code.add(MJVMInstructions.ENTER);
         code.add((byte)nParams); //s8 nparams
-        code.add((byte)nParams);  //s8 framesize ?!
+        fsAddress = code.size();
+        code.add((byte)0);  //s8 framesize ?!
     }
 
     @Override
     public void exitProc(String label) {
+
+        code.set(fsAddress, (byte)(fsLocalVariables + params));
 
         labels.put(label, code.size());
         code.add(MJVMInstructions.EXIT);
