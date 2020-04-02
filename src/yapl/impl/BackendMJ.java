@@ -311,19 +311,19 @@ public class BackendMJ implements BackendBinSM {
 
 
         //eigentlich hinfällig...
-        if(labels.containsKey(label)){
+        /*if(labels.containsKey(label)){
             int address = labels.get(label);
             code.add(MJVMInstructions.CALL);
             code.add((byte)(address>>8));
             code.add((byte)address);
-        }else{
+        }else{*/
             //das dürfte ausreichen
             //unknownLabels.put(label, code.size());
             code.add(MJVMInstructions.CALL);
             unknownLabels.put(label, code.size());
             code.add((byte)0);
             code.add((byte)0);
-        }
+        //}
 
     }
 

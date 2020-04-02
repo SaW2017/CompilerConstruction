@@ -17,7 +17,7 @@ public class Test8
 {
 
     /**
-     * Usage: java yapl.test.backend.sm.Test6 object_file
+     * Usage: java yapl.test.backend.sm.Test8 object_file
      */
     public static void main(String[] args) throws IOException
     {

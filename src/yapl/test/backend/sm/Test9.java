@@ -17,13 +17,12 @@ public class Test9
 {
 
     /**
-     * Usage: java yapl.test.backend.sm.Test6 object_file
+     * Usage: java yapl.test.backend.sm.Test9 object_file
      */
     public static void main(String[] args) throws IOException
     {
         BackendBinSM backend = new BackendMJ();
-        int addrA = backend.allocStaticData(1);
-        int addrNewline = backend.allocStringConstant("\n");
+
         // main program
         backend.enterProc("main", 0, true);
 
