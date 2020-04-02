@@ -1,2 +1,1 @@
-
--- exception at address 16: wrong opcode 0
+1001011010

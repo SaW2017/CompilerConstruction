@@ -245,37 +245,40 @@ public class BackendMJ implements BackendBinSM {
         code.add(MJVMInstructions.DIV);
     }
 
-    @Override
-    public void isEqual() {
-        code.add(MJVMInstructions.JEQ);
-        unknownLabels.put("eq", code.size());
+    private void compareValues(byte instr){
+        code.add(instr);
+        code.add((byte)((code.size()+5)>>8));
+        code.add((byte)(code.size()+5));
         code.add(MJVMInstructions.CONST0);
         code.add(MJVMInstructions.JMP);
-        int tmpAddress = code.size();
-        code.add((byte)((tmpAddress+1)>>8));
-        code.add((byte)((tmpAddress+1)));
-        assignLabel("eq");
-        code.add(MJVMInstructions.CONST0);
+        code.add((byte)((code.size()+2)>>8));
+        code.add((byte)(code.size()+2));
+        code.add(MJVMInstructions.CONST1);
+    }
+
+    @Override
+    public void isEqual() {
+        compareValues(MJVMInstructions.JEQ);
     }
 
     @Override
     public void isLess() {
-
+        compareValues(MJVMInstructions.JLT);
     }
 
     @Override
     public void isLessOrEqual() {
-
+        compareValues(MJVMInstructions.JLE);
     }
 
     @Override
     public void isGreater() {
-
+        compareValues(MJVMInstructions.JGT);
     }
 
     @Override
     public void isGreaterOrEqual() {
-
+        compareValues(MJVMInstructions.JGE);
     }
 
     @Override

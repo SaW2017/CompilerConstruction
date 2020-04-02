@@ -24,10 +24,62 @@ public class Test8
         BackendBinSM backend = new BackendMJ();
         // main program
         backend.enterProc("main", 0, true);
-        backend.loadConst(16);
+
+        //Test JEQ
+        backend.loadConst(0);
         backend.loadConst(0);
         backend.isEqual();
         backend.writeInteger();
+
+        backend.loadConst(0);
+        backend.loadConst(1);
+        backend.isEqual();
+        backend.writeInteger();
+
+        //Test JLT
+        backend.loadConst(1);
+        backend.loadConst(0);
+        backend.isLess();
+        backend.writeInteger();
+
+        backend.loadConst(0);
+        backend.loadConst(1);
+        backend.isLess();
+        backend.writeInteger();
+
+        //Test JLE
+        backend.loadConst(1);
+        backend.loadConst(0);
+        backend.isLessOrEqual();
+        backend.writeInteger();
+
+        backend.loadConst(0);
+        backend.loadConst(1);
+        backend.isLessOrEqual();
+        backend.writeInteger();
+
+        //Test JGT
+        backend.loadConst(1);
+        backend.loadConst(0);
+        backend.isGreater();
+        backend.writeInteger();
+
+        backend.loadConst(0);
+        backend.loadConst(1);
+        backend.isGreater();
+        backend.writeInteger();
+
+        //Test JGE
+        backend.loadConst(1);
+        backend.loadConst(0);
+        backend.isGreaterOrEqual();
+        backend.writeInteger();
+
+        backend.loadConst(0);
+        backend.loadConst(1);
+        backend.isGreaterOrEqual();
+        backend.writeInteger();
+
         backend.exitProc("main_end");
 
         backend.writeObjectFile(new FileOutputStream(args[0]));
