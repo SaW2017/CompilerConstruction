@@ -26,7 +26,9 @@ public class BackendMJ implements BackendBinSM {
     private int params = 0;
 
     public BackendMJ(){
-
+        for(int i = 0; i < 8; i++){
+            sData.add((byte)0);
+        }
     }
 
     @Override
@@ -183,7 +185,7 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void arrayLength() {
-
+        code.add(MJVMInstructions.ARRAY_LENGTH);
     }
 
     @Override
