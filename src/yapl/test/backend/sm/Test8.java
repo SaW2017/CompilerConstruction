@@ -25,7 +25,11 @@ public class Test8
         // main program
         backend.enterProc("main", 0, true);
 
+        int addrNewline = backend.allocStringConstant("\n");
+
+        //--------
         //Test JEQ
+        //--------
         backend.loadConst(0);
         backend.loadConst(0);
         backend.isEqual();
@@ -36,8 +40,17 @@ public class Test8
         backend.isEqual();
         backend.writeInteger();
 
+        backend.writeString(addrNewline);
+
+        //--------
         //Test JLT
+        //--------
         backend.loadConst(1);
+        backend.loadConst(0);
+        backend.isLess();
+        backend.writeInteger();
+
+        backend.loadConst(0);
         backend.loadConst(0);
         backend.isLess();
         backend.writeInteger();
@@ -47,8 +60,17 @@ public class Test8
         backend.isLess();
         backend.writeInteger();
 
+        backend.writeString(addrNewline);
+
+        //--------
         //Test JLE
+        //--------
         backend.loadConst(1);
+        backend.loadConst(0);
+        backend.isLessOrEqual();
+        backend.writeInteger();
+
+        backend.loadConst(0);
         backend.loadConst(0);
         backend.isLessOrEqual();
         backend.writeInteger();
@@ -58,8 +80,17 @@ public class Test8
         backend.isLessOrEqual();
         backend.writeInteger();
 
+        backend.writeString(addrNewline);
+
+        //--------
         //Test JGT
+        //--------
         backend.loadConst(1);
+        backend.loadConst(0);
+        backend.isGreater();
+        backend.writeInteger();
+
+        backend.loadConst(0);
         backend.loadConst(0);
         backend.isGreater();
         backend.writeInteger();
@@ -69,8 +100,17 @@ public class Test8
         backend.isGreater();
         backend.writeInteger();
 
+        backend.writeString(addrNewline);
+
+        //--------
         //Test JGE
+        //--------
         backend.loadConst(1);
+        backend.loadConst(0);
+        backend.isGreaterOrEqual();
+        backend.writeInteger();
+
+        backend.loadConst(0);
         backend.loadConst(0);
         backend.isGreaterOrEqual();
         backend.writeInteger();
