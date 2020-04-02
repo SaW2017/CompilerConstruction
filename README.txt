@@ -5,10 +5,10 @@ Zip contains:
 - package "impl"
 - package "test.backend.sm"
 
-Please Change in build-dist.xml:  
+If you use your own build-dist.xml then please Change in build-dist.xml:  
 <!-- list of Java test classes -->
   to:
-  <property name="testclasses" value="Test1,Test2,Test3,Test4,Test5,Test6,Test7,Test8,Test9"/>
+  <property name="testclasses" value="Test1,Test2,Test3,Test4,Test5,Test6,Test7,Test8,Test9,Test10"/>
 
 compile & run with:
 ant -buildfile build-dist.xml "eval-all"
