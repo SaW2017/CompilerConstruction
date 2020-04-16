@@ -16,7 +16,7 @@ User-relevant properties: (customize to your environment)
 
 	<property name="src" location="src"/>
 	<property name="build" location="ant-bin"/>
-	<property name="javacc" location="C:/Program Files/Java/javacc/target"/>
+	<property name="javacc" location="C:\Users\SW\Documents\Programming\javacc\target"/>
 	<property name="ant-contrib" location="lib/ant-contrib-0.6.jar"/>
     <property name="mj-jar" location="mjvm/mj.jar"/>
 	<property name="version" value="parser"/>
