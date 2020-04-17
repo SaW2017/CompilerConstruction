@@ -1,5 +1,5 @@
 options {
-    LOOKAHEAD = 3;
+    LOOKAHEAD = 2;
     DEBUG_TOKEN_MANAGER = true;
 }
 
@@ -57,18 +57,7 @@ void Program():
         Token t;
 }
 {
-    //"Program" <ident> {  programName = t.getNextToken().toString();} ( Decl() | Procedure())*
-    //"Begin" StatementList() "End" <ident> "." <EOF>
-
-    "Program" <ident> {
-                            if(t.toString != null){
-                                programName = t.toString();
-                            }else{
-                                programName = "Dummes Programm!";
-                            }
-
-
-                        } ( Decl() | Procedure())*
+    "Program" t = <ident> {  programName = t.toString();} ( Decl() | Procedure())*
     "Begin" StatementList() "End" <ident> "." <EOF>
 
 
