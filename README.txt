@@ -28,7 +28,7 @@ https://ant.apache.org/manual/Tasks/javacc.html
 build.xml:
 change javacc-Home Path
 
-before running - delete old packages, otherwise you`ll get an error because of same named files.
+before running - delete old compiled classes, otherwise you`ll get an error because of same named files.
 if an error occurs after building, then there isn`t a package set in the specified files, please
 set it manually
 
