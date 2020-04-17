@@ -23,6 +23,7 @@ CA2 Assignment:
 build.xml:
 change javacc-Home Path
 
+before running - delete old packages, otherwise you`ll get an error because of same named files.
 run different examples with:
 ant -buildfile build-dist-mj.xml c21
 ant -buildfile build-dist-mj.xml c22
