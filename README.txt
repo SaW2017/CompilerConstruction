@@ -20,6 +20,10 @@ Assignment CA1.pdf.pdf
 
 CA2 Assignment:
 
+Needed Reference: 
+https://javacc.github.io/javacc/tutorials/token-manager.html
+https://www.cs.purdue.edu/homes/hosking/javacc/doc/lookahead.html
+
 build.xml:
 change javacc-Home Path
 
