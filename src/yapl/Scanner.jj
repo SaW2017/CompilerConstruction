@@ -1,0 +1,51 @@
+options {
+    LOOKAHEAD = 2;
+}
+
+PARSER_BEGIN(Scanner)
+
+/** Match Grammar G from CA2.1 */
+public class Scanner {
+
+  /** Main entry point. */
+  public static void main(String args[]) throws ParseException {
+    Scanner scanner = new Parser(System.in);
+    scanner.start();
+  }
+
+}
+
+PARSER_END(Scanner)
+
+void Start() :
+{ Token t; }
+{
+    { do { t = getNextToken();
+    System.out.println(t.toString()); }
+    while (t.kind != EOF);
+    }
+<EOF>
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+ <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
+
+TOKEN : /* LITERALS */
+{
+
+    <ident: <letter> ( <letter> | <digit> )*>
+|
+    <number: <digit> ( <digit> )*>
+|
+    <string:"\"" ( " " | <letter> | <digit> | <otherchar> )* "\"">
+|
+     <digit: ["0"-"9"] >
+|
+    <letter: ["A"-"Z"]|["a"-"z"]|"_">
+|
+    <otherchar:"+" | "-" | "*" | "/" | "." | "," | ";" | ":" | "!"
+                         | "?" | "=" | "#" | "%" | "<" | ">" | "$" | "(" | ")"
+                         | "[" | "]" | "{" | "}" | "\\" | "@" | "&" | "^" | "|">
+}
