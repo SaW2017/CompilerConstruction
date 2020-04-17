@@ -15,3 +15,18 @@ ant -buildfile build-dist.xml "eval-all"
 
 Please look for code coverage at: 
 Assignment CA1.pdf.pdf
+
+
+
+CA2 Assignment:
+
+build.xml:
+change javacc-Home Path
+
+run different examples with:
+ant -buildfile build-dist-mj.xml c21
+ant -buildfile build-dist-mj.xml c22
+ant -buildfile build-dist-mj.xml c23
+
+
+
