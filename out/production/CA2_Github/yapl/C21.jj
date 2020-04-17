@@ -1,0 +1,30 @@
+options {
+    LOOKAHEAD = 2;
+}
+PARSER_BEGIN(C21)
+
+/** Match Grammar G from CA2.1 */
+public class C21 {
+
+  /** Main entry point. */
+  public static void main(String args[]) throws ParseException {
+    C21 parser = new C21(System.in);
+    C21.Input();
+  }
+
+}
+
+PARSER_END(C21)
+
+/** Root production. */
+ void Input() :
+{}
+{
+    (A() | "a") "c"
+}
+
+void A() :
+{}
+{
+    "a" A() | "b"
+}

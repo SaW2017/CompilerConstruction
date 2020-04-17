@@ -16,7 +16,7 @@ User-relevant properties: (customize to your environment)
 
 	<property name="src" location="src"/>
 	<property name="build" location="ant-bin"/>
-	<property name="javacc" location="C:\Users\SW\Documents\Programming\javacc\target"/>
+	<property name="javacc" location="C:\Program Files\Java\javacc\target"/>
 	<property name="ant-contrib" location="lib/ant-contrib-0.6.jar"/>
     <property name="mj-jar" location="mjvm/mj.jar"/>
 	<property name="version" value="parser"/>
@@ -126,8 +126,33 @@ User-relevant properties: (customize to your environment)
 
     <target name="javacc">
         <javacc
-                target="${src}/yapl/Parser.jj"
+                target="/yapl/C21.jj"
                 outputdirectory="${src}/yapl/compiler"
+                javacchome="${javacc}"
+        />
+    </target>
+
+
+    <target name="c22">
+        <javacc
+                target="${src}/yapl/Scanner.jj"
+                outputdirectory="${src}/yapl/Scanner"
+                javacchome="${javacc}"
+        />
+    </target>
+
+    <target name="c21">
+        <javacc
+                target="${src}/yapl/C21.jj"
+                outputdirectory="${src}/yapl/C21"
+                javacchome="${javacc}"
+        />
+    </target>
+
+    <target name="c23">
+        <javacc
+                target="${src}/yapl/Parser.jj"
+                outputdirectory="${src}/yapl/Compiler"
                 javacchome="${javacc}"
         />
     </target>
