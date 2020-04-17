@@ -32,6 +32,7 @@ run different examples with:
 ant -buildfile build-dist-mj.xml c21
 ant -buildfile build-dist-mj.xml c22
 ant -buildfile build-dist-mj.xml c23
+(Parser is top-down from general (program) to detail (letter "a...z")
 
 
 
