@@ -33,23 +33,18 @@ public class Parser implements ParserConstants {
 
   static final public void Program() throws ParseException {Token t;
     jj_consume_token(6);
-    jj_consume_token(ident);
-    t.getNextToken();
-if(t != null){
-                                programName = t.toString();
-                            }else{
-                                programName = "Dummes Programm!";
-                            }
+    t = jj_consume_token(ident);
+programName = t.toString();
     label_1:
     while (true) {
-      if (jj_2_1(3)) {
+      if (jj_2_1(2)) {
         ;
       } else {
         break label_1;
       }
-      if (jj_2_2(3)) {
+      if (jj_2_2(2)) {
         Decl();
-      } else if (jj_2_3(3)) {
+      } else if (jj_2_3(2)) {
         Procedure();
       } else {
         jj_consume_token(-1);
@@ -69,16 +64,16 @@ if(t != null){
     jj_consume_token(10);
     label_2:
     while (true) {
-      if (jj_2_4(3)) {
+      if (jj_2_4(2)) {
         ;
       } else {
         break label_2;
       }
-      if (jj_2_5(3)) {
+      if (jj_2_5(2)) {
         ConstDecl();
-      } else if (jj_2_6(3)) {
+      } else if (jj_2_6(2)) {
         VarDecl();
-      } else if (jj_2_7(3)) {
+      } else if (jj_2_7(2)) {
         TypeDecl();
       } else {
         jj_consume_token(-1);
@@ -100,7 +95,7 @@ if(t != null){
     jj_consume_token(ident);
     label_3:
     while (true) {
-      if (jj_2_8(3)) {
+      if (jj_2_8(2)) {
         ;
       } else {
         break label_3;
@@ -117,7 +112,7 @@ if(t != null){
     VarDecl();
     label_4:
     while (true) {
-      if (jj_2_9(3)) {
+      if (jj_2_9(2)) {
         ;
       } else {
         break label_4;
@@ -133,11 +128,11 @@ if(t != null){
 //________________TYPEs_____________
   static final public 
 void NonArrayType() throws ParseException {
-    if (jj_2_10(3)) {
+    if (jj_2_10(2)) {
       jj_consume_token(17);
-    } else if (jj_2_11(3)) {
+    } else if (jj_2_11(2)) {
       jj_consume_token(18);
-    } else if (jj_2_12(3)) {
+    } else if (jj_2_12(2)) {
       jj_consume_token(ident);
     } else {
       jj_consume_token(-1);
@@ -149,7 +144,7 @@ void NonArrayType() throws ParseException {
     NonArrayType();
     label_5:
     while (true) {
-      if (jj_2_13(3)) {
+      if (jj_2_13(2)) {
         ;
       } else {
         break label_5;
@@ -160,9 +155,9 @@ void NonArrayType() throws ParseException {
 }
 
   static final public void ReturnType() throws ParseException {
-    if (jj_2_14(3)) {
+    if (jj_2_14(2)) {
       jj_consume_token(21);
-    } else if (jj_2_15(3)) {
+    } else if (jj_2_15(2)) {
       Type();
     } else {
       jj_consume_token(-1);
@@ -178,7 +173,7 @@ void NonArrayType() throws ParseException {
     ReturnType();
     jj_consume_token(ident);
     jj_consume_token(23);
-    if (jj_2_16(3)) {
+    if (jj_2_16(2)) {
       FormalParamList();
     } else {
       ;
@@ -193,7 +188,7 @@ void NonArrayType() throws ParseException {
     FormalParam();
     label_6:
     while (true) {
-      if (jj_2_17(3)) {
+      if (jj_2_17(2)) {
         ;
       } else {
         break label_6;
@@ -215,7 +210,7 @@ void NonArrayType() throws ParseException {
 void StatementList() throws ParseException {
     label_7:
     while (true) {
-      if (jj_2_18(3)) {
+      if (jj_2_18(2)) {
         ;
       } else {
         break label_7;
@@ -226,19 +221,19 @@ void StatementList() throws ParseException {
 }
 
   static final public void Statement() throws ParseException {
-    if (jj_2_19(3)) {
+    if (jj_2_19(2)) {
       IfStatement();
-    } else if (jj_2_20(3)) {
+    } else if (jj_2_20(2)) {
       WhileStatement();
-    } else if (jj_2_21(3)) {
+    } else if (jj_2_21(2)) {
       ReturnStatement();
-    } else if (jj_2_22(3)) {
+    } else if (jj_2_22(2)) {
       WriteStatement();
-    } else if (jj_2_23(3)) {
+    } else if (jj_2_23(2)) {
       Assignment();
-    } else if (jj_2_24(3)) {
+    } else if (jj_2_24(2)) {
       ProcedureCall();
-    } else if (jj_2_25(3)) {
+    } else if (jj_2_25(2)) {
       Block();
     } else {
       jj_consume_token(-1);
@@ -253,7 +248,7 @@ void StatementList() throws ParseException {
 
   static final public void ReturnStatement() throws ParseException {
     jj_consume_token(26);
-    if (jj_2_26(3)) {
+    if (jj_2_26(2)) {
       Expr();
     } else {
       ;
@@ -273,7 +268,7 @@ void StatementList() throws ParseException {
     Expr();
     jj_consume_token(31);
     StatementList();
-    if (jj_2_27(3)) {
+    if (jj_2_27(2)) {
       jj_consume_token(32);
       StatementList();
     } else {
@@ -284,7 +279,7 @@ void StatementList() throws ParseException {
 
   static final public void Assignment() throws ParseException {
     jj_consume_token(ident);
-    if (jj_2_28(3)) {
+    if (jj_2_28(2)) {
       Selector();
     } else {
       ;
@@ -296,7 +291,7 @@ void StatementList() throws ParseException {
   static final public void ProcedureCall() throws ParseException {
     jj_consume_token(ident);
     jj_consume_token(23);
-    if (jj_2_29(3)) {
+    if (jj_2_29(2)) {
       ArgumentList();
     } else {
       ;
@@ -308,7 +303,7 @@ void StatementList() throws ParseException {
     Expr();
     label_8:
     while (true) {
-      if (jj_2_30(3)) {
+      if (jj_2_30(2)) {
         ;
       } else {
         break label_8;
@@ -319,7 +314,7 @@ void StatementList() throws ParseException {
 }
 
   static final public void Block() throws ParseException {
-    if (jj_2_31(3)) {
+    if (jj_2_31(2)) {
       Decl();
     } else {
       ;
@@ -334,11 +329,11 @@ void StatementList() throws ParseException {
 //_______________EXPRESSIONs________
   static final public 
 void Expr() throws ParseException {
-    if (jj_2_33(3)) {
+    if (jj_2_33(2)) {
       CondAndExpr();
       label_9:
       while (true) {
-        if (jj_2_32(3)) {
+        if (jj_2_32(2)) {
           ;
         } else {
           break label_9;
@@ -346,7 +341,7 @@ void Expr() throws ParseException {
         jj_consume_token(35);
         CondAndExpr();
       }
-    } else if (jj_2_34(3)) {
+    } else if (jj_2_34(2)) {
       CreationExpr();
     } else {
       jj_consume_token(-1);
@@ -359,7 +354,7 @@ void Expr() throws ParseException {
     NonArrayType();
     label_10:
     while (true) {
-      if (jj_2_35(3)) {
+      if (jj_2_35(2)) {
         ;
       } else {
         break label_10;
@@ -374,7 +369,7 @@ void Expr() throws ParseException {
     EqualExpr();
     label_11:
     while (true) {
-      if (jj_2_36(3)) {
+      if (jj_2_36(2)) {
         ;
       } else {
         break label_11;
@@ -386,7 +381,7 @@ void Expr() throws ParseException {
 
   static final public void EqualExpr() throws ParseException {
     RelExpr();
-    if (jj_2_37(3)) {
+    if (jj_2_37(2)) {
       EqualOp();
       RelExpr();
     } else {
@@ -396,7 +391,7 @@ void Expr() throws ParseException {
 
   static final public void RelExpr() throws ParseException {
     AddExpr();
-    if (jj_2_38(3)) {
+    if (jj_2_38(2)) {
       RelOp();
       AddExpr();
     } else {
@@ -408,7 +403,7 @@ void Expr() throws ParseException {
     MulExpr();
     label_12:
     while (true) {
-      if (jj_2_39(3)) {
+      if (jj_2_39(2)) {
         ;
       } else {
         break label_12;
@@ -422,7 +417,7 @@ void Expr() throws ParseException {
     UnaryExpr();
     label_13:
     while (true) {
-      if (jj_2_40(3)) {
+      if (jj_2_40(2)) {
         ;
       } else {
         break label_13;
@@ -433,7 +428,7 @@ void Expr() throws ParseException {
 }
 
   static final public void UnaryExpr() throws ParseException {
-    if (jj_2_41(3)) {
+    if (jj_2_41(2)) {
       AddOp();
     } else {
       ;
@@ -442,22 +437,22 @@ void Expr() throws ParseException {
 }
 
   static final public void PrimaryExpr() throws ParseException {
-    if (jj_2_43(3)) {
+    if (jj_2_43(2)) {
       Literal();
-    } else if (jj_2_44(3)) {
+    } else if (jj_2_44(2)) {
       jj_consume_token(23);
       Expr();
       jj_consume_token(24);
-    } else if (jj_2_45(3)) {
+    } else if (jj_2_45(2)) {
       ProcedureCall();
-    } else if (jj_2_46(3)) {
+    } else if (jj_2_46(2)) {
       jj_consume_token(ident);
-      if (jj_2_42(3)) {
+      if (jj_2_42(2)) {
         Selector();
       } else {
         ;
       }
-    } else if (jj_2_47(3)) {
+    } else if (jj_2_47(2)) {
       ArrayLen();
     } else {
       jj_consume_token(-1);
@@ -468,7 +463,7 @@ void Expr() throws ParseException {
   static final public void ArrayLen() throws ParseException {
     jj_consume_token(38);
     jj_consume_token(ident);
-    if (jj_2_48(3)) {
+    if (jj_2_48(2)) {
       Selector();
     } else {
       ;
@@ -476,18 +471,18 @@ void Expr() throws ParseException {
 }
 
   static final public void Selector() throws ParseException {
-    if (jj_2_49(3)) {
+    if (jj_2_49(2)) {
       jj_consume_token(19);
       Expr();
       jj_consume_token(20);
-    } else if (jj_2_50(3)) {
+    } else if (jj_2_50(2)) {
       jj_consume_token(9);
       jj_consume_token(ident);
     } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
-    if (jj_2_51(3)) {
+    if (jj_2_51(2)) {
       Selector();
     } else {
       ;
@@ -495,11 +490,11 @@ void Expr() throws ParseException {
 }
 
   static final public void Literal() throws ParseException {
-    if (jj_2_52(3)) {
+    if (jj_2_52(2)) {
       jj_consume_token(39);
-    } else if (jj_2_53(3)) {
+    } else if (jj_2_53(2)) {
       jj_consume_token(40);
-    } else if (jj_2_54(3)) {
+    } else if (jj_2_54(2)) {
       jj_consume_token(number);
     } else {
       jj_consume_token(-1);
@@ -511,13 +506,13 @@ void Expr() throws ParseException {
 
 //__________________OPs_______________
   static final public void RelOp() throws ParseException {
-    if (jj_2_55(3)) {
+    if (jj_2_55(2)) {
       jj_consume_token(41);
-    } else if (jj_2_56(3)) {
+    } else if (jj_2_56(2)) {
       jj_consume_token(42);
-    } else if (jj_2_57(3)) {
+    } else if (jj_2_57(2)) {
       jj_consume_token(43);
-    } else if (jj_2_58(3)) {
+    } else if (jj_2_58(2)) {
       jj_consume_token(44);
     } else {
       jj_consume_token(-1);
@@ -526,9 +521,9 @@ void Expr() throws ParseException {
 }
 
   static final public void EqualOp() throws ParseException {
-    if (jj_2_59(3)) {
+    if (jj_2_59(2)) {
       jj_consume_token(45);
-    } else if (jj_2_60(3)) {
+    } else if (jj_2_60(2)) {
       jj_consume_token(46);
     } else {
       jj_consume_token(-1);
@@ -537,9 +532,9 @@ void Expr() throws ParseException {
 }
 
   static final public void AddOp() throws ParseException {
-    if (jj_2_61(3)) {
+    if (jj_2_61(2)) {
       jj_consume_token(47);
-    } else if (jj_2_62(3)) {
+    } else if (jj_2_62(2)) {
       jj_consume_token(48);
     } else {
       jj_consume_token(-1);
@@ -548,11 +543,11 @@ void Expr() throws ParseException {
 }
 
   static final public void MulOp() throws ParseException {
-    if (jj_2_63(3)) {
+    if (jj_2_63(2)) {
       jj_consume_token(49);
-    } else if (jj_2_64(3)) {
+    } else if (jj_2_64(2)) {
       jj_consume_token(50);
-    } else if (jj_2_65(3)) {
+    } else if (jj_2_65(2)) {
       jj_consume_token(51);
     } else {
       jj_consume_token(-1);
@@ -1080,6 +1075,26 @@ void Expr() throws ParseException {
     finally { jj_save(64, xla); }
   }
 
+  static private boolean jj_3R_23()
+ {
+    if (jj_scan_token(30)) return true;
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_26()
+ {
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_24()
+ {
+    if (jj_scan_token(27)) return true;
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
   static private boolean jj_3_20()
  {
     if (jj_3R_24()) return true;
@@ -1247,11 +1262,6 @@ void Expr() throws ParseException {
   static private boolean jj_3R_20()
  {
     if (jj_3R_21()) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_17()) { jj_scanpos = xsp; break; }
-    }
     return false;
   }
 
@@ -1289,6 +1299,12 @@ void Expr() throws ParseException {
     return false;
   }
 
+  static private boolean jj_3_3()
+ {
+    if (jj_3R_15()) return true;
+    return false;
+  }
+
   static private boolean jj_3_13()
  {
     if (jj_scan_token(19)) return true;
@@ -1306,7 +1322,6 @@ void Expr() throws ParseException {
  {
     if (jj_scan_token(22)) return true;
     if (jj_3R_47()) return true;
-    if (jj_scan_token(ident)) return true;
     return false;
   }
 
@@ -1383,6 +1398,22 @@ void Expr() throws ParseException {
     return false;
   }
 
+  static private boolean jj_3_2()
+ {
+    if (jj_3R_14()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_1()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (!jj_3_2()) return false;
+    jj_scanpos = xsp;
+    if (jj_3_3()) return true;
+    return false;
+  }
+
   static private boolean jj_3_14()
  {
     if (jj_scan_token(21)) return true;
@@ -1440,7 +1471,6 @@ void Expr() throws ParseException {
  {
     if (jj_scan_token(19)) return true;
     if (jj_3R_30()) return true;
-    if (jj_scan_token(20)) return true;
     return false;
   }
 
@@ -1463,8 +1493,6 @@ void Expr() throws ParseException {
     if (!jj_3_49()) return false;
     jj_scanpos = xsp;
     if (jj_3_50()) return true;
-    xsp = jj_scanpos;
-    if (jj_3_51()) jj_scanpos = xsp;
     return false;
   }
 
@@ -1485,7 +1513,6 @@ void Expr() throws ParseException {
  {
     if (jj_scan_token(23)) return true;
     if (jj_3R_30()) return true;
-    if (jj_scan_token(24)) return true;
     return false;
   }
 
@@ -1499,15 +1526,6 @@ void Expr() throws ParseException {
  {
     if (jj_scan_token(38)) return true;
     if (jj_scan_token(ident)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_48()) jj_scanpos = xsp;
-    return false;
-  }
-
-  static private boolean jj_3_3()
- {
-    if (jj_3R_15()) return true;
     return false;
   }
 
@@ -1515,7 +1533,6 @@ void Expr() throws ParseException {
  {
     if (jj_scan_token(15)) return true;
     if (jj_scan_token(ident)) return true;
-    if (jj_3R_17()) return true;
     return false;
   }
 
@@ -1552,28 +1569,6 @@ void Expr() throws ParseException {
  {
     if (jj_3R_19()) return true;
     if (jj_scan_token(ident)) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_8()) { jj_scanpos = xsp; break; }
-    }
-    if (jj_scan_token(13)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_2()
- {
-    if (jj_3R_14()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_1()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (!jj_3_2()) return false;
-    jj_scanpos = xsp;
-    if (jj_3_3()) return true;
     return false;
   }
 
@@ -1614,7 +1609,6 @@ void Expr() throws ParseException {
  {
     if (jj_scan_token(11)) return true;
     if (jj_scan_token(ident)) return true;
-    if (jj_scan_token(12)) return true;
     return false;
   }
 
@@ -1688,7 +1682,6 @@ void Expr() throws ParseException {
  {
     if (jj_scan_token(19)) return true;
     if (jj_3R_30()) return true;
-    if (jj_scan_token(20)) return true;
     return false;
   }
 
@@ -1751,11 +1744,6 @@ void Expr() throws ParseException {
  {
     if (jj_scan_token(36)) return true;
     if (jj_3R_48()) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_35()) { jj_scanpos = xsp; break; }
-    }
     return false;
   }
 
@@ -1844,10 +1832,6 @@ void Expr() throws ParseException {
  {
     if (jj_scan_token(ident)) return true;
     if (jj_scan_token(23)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_29()) jj_scanpos = xsp;
-    if (jj_scan_token(24)) return true;
     return false;
   }
 
@@ -1858,35 +1842,12 @@ void Expr() throws ParseException {
     xsp = jj_scanpos;
     if (jj_3_28()) jj_scanpos = xsp;
     if (jj_scan_token(34)) return true;
-    if (jj_3R_30()) return true;
     return false;
   }
 
   static private boolean jj_3_21()
  {
     if (jj_3R_25()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_23()
- {
-    if (jj_scan_token(30)) return true;
-    if (jj_3R_30()) return true;
-    if (jj_scan_token(31)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_26()
- {
-    if (jj_3R_30()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_24()
- {
-    if (jj_scan_token(27)) return true;
-    if (jj_3R_30()) return true;
-    if (jj_scan_token(28)) return true;
     return false;
   }
 
