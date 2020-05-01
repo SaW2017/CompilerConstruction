@@ -7,11 +7,13 @@ public class Scope {
 
     private boolean isGlobal;
     private Symbol parentSymbol;
+    int scopeLevel;
     private HashMap<String, Symbol> symbols;
 
-    public Scope(boolean isGlobal, Symbol parentSymbol, HashMap<String, Symbol> symbols) {
+    public Scope(boolean isGlobal, Symbol parentSymbol, int scopeLevel) {
         this.isGlobal = isGlobal;
         this.parentSymbol = parentSymbol;
+        this.scopeLevel = scopeLevel;
     }
 
     public boolean isGlobal() {
@@ -36,5 +38,13 @@ public class Scope {
 
     public void setSymbols(HashMap<String, Symbol> symbols) {
         this.symbols = symbols;
+    }
+
+    public int getScopeLevel() {
+        return scopeLevel;
+    }
+
+    public void setScopeLevel(int scopeLevel) {
+        this.scopeLevel = scopeLevel;
     }
 }
