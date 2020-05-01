@@ -5,9 +5,14 @@ import yapl.lib.YAPLException;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Stack;
 
 public class Symboltable implements yapl.interfaces.Symboltable {
 
+    public Symboltable() {
+    }
+
+    public Stack<Scope>
     public HashMap<String, Symbol> symbolTable;
 
     boolean debugEnabled = false;
@@ -34,7 +39,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
     public Symbol lookup(String name) throws YAPLException {
         if(name == null) throw new YAPLException();
 
-        
+
     }
 
     @Override
