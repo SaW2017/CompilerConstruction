@@ -49,6 +49,10 @@ public class Symbol implements yapl.interfaces.Symbol {
         return name;
     }
 
+    public void setName(String name){
+        this.name = name;
+    }
+
     @Override
     public Type getType() {
         return type;

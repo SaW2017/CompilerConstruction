@@ -10,6 +10,8 @@ class SimpleNode implements Node {
   protected int id;
   protected Object value;
   protected Parser parser;
+
+
   protected String programName;
   protected String name;
   protected String ident;

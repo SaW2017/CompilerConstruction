@@ -6,10 +6,13 @@ options {
 
 PARSER_BEGIN(Parser)
 package yapl.compiler;
-import yapl.Symboltable;import yapl.interfaces.CompilerError;
-import yapl.interfaces.Symbol;import yapl.lib.CompilerMessage;
+import yapl.Symboltable;
+import yapl.interfaces.CompilerError;
+import yapl.interfaces.Symbol;
+import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import yapl.SymbolChecker;
 
 /** CA3 */
 public class Parser {
@@ -30,11 +33,16 @@ public class Parser {
             astProgramRoot = parser.Program();
             astProgramRoot.dump("AST: ");
 
+
             System.out.println("--> " + astProgramRoot.getProgramName());
             System.out.println("--->" + astProgramRoot.jjtGetNumChildren());
             for(int i = 0 ; i < astProgramRoot.jjtGetNumChildren(); i++){
                 System.out.println("C -> " + ((SimpleNode)astProgramRoot.jjtGetChild(i)).getProgramName());
+
+
             }
+
+            new SymbolChecker().check(astProgramRoot);
 
             CompilerMessage.printOK(programName);
         } catch (ParseException e) {
@@ -85,12 +93,12 @@ ASTProgram Program():
 }
 
 
-ASTEnd End(String program):
+ASTEnd End(String programName):
 {
     Token t;
 }
 {
-    t = <ident> { jjtThis.setName(t.image); jjtThis.setProgramName(program);} "." <EOF>
+    t = <ident> { jjtThis.setName(t.image); jjtThis.setProgramName(programName);} "." <EOF>
     {
         return jjtThis;
     }
@@ -160,9 +168,10 @@ void ReturnType():
 //________________PROCEDUREs__________
 void Procedure():
 {
+ Token t;
 }
 {
-    "Procedure" ReturnType() <ident> "(" (FormalParamList())? ")" Block() <ident> ";"
+    "Procedure" ReturnType() t=<ident>{jjtThis.setIdent(t.image);} "(" (FormalParamList())? ")" Block() <ident> ";"
 }
 
 void FormalParamList():

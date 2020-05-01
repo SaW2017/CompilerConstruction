@@ -7,10 +7,13 @@
 
 PARSER_BEGIN(Parser)
 package yapl.compiler;
-import yapl.Symboltable;import yapl.interfaces.CompilerError;
-import yapl.interfaces.Symbol;import yapl.lib.CompilerMessage;
+import yapl.Symboltable;
+import yapl.interfaces.CompilerError;
+import yapl.interfaces.Symbol;
+import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import yapl.SymbolChecker;
 
 /** CA3 */
 public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/ {/*@bgen(jjtree)*/
@@ -34,11 +37,16 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/ {/*@
             astProgramRoot = parser.Program();
             astProgramRoot.dump("AST: ");
 
+
             System.out.println("--> " + astProgramRoot.getProgramName());
             System.out.println("--->" + astProgramRoot.jjtGetNumChildren());
             for(int i = 0 ; i < astProgramRoot.jjtGetNumChildren(); i++){
                 System.out.println("C -> " + ((SimpleNode)astProgramRoot.jjtGetChild(i)).getProgramName());
+
+
             }
+
+            new SymbolChecker().check(astProgramRoot);
 
             CompilerMessage.printOK(programName);
         } catch (ParseException e) {
@@ -120,7 +128,7 @@ ASTProgram Program():
 }
 
 
-ASTEnd End(String program):
+ASTEnd End(String programName):
 {/*@bgen(jjtree) End */
     ASTEnd jjtn000 = new ASTEnd(JJTEND);
     boolean jjtc000 = true;
@@ -131,7 +139,7 @@ ASTEnd End(String program):
 {/*@bgen(jjtree) End */
     try {
 /*@egen*/
-    t = <ident> { jjtn000.setName(t.image); jjtn000.setProgramName(program);} "." <EOF>/*@bgen(jjtree)*/
+    t = <ident> { jjtn000.setName(t.image); jjtn000.setProgramName(programName);} "." <EOF>/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
@@ -385,15 +393,16 @@ void ReturnType():
 //________________PROCEDUREs__________
 void Procedure():
 {/*@bgen(jjtree) Procedure */
-  ASTProcedure jjtn000 = new ASTProcedure(JJTPROCEDURE);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
+ ASTProcedure jjtn000 = new ASTProcedure(JJTPROCEDURE);
+ boolean jjtc000 = true;
+ jjtree.openNodeScope(jjtn000);
 /*@egen*/
+ Token t;
 }
 {/*@bgen(jjtree) Procedure */
     try {
 /*@egen*/
-    "Procedure" ReturnType() <ident> "(" (FormalParamList())? ")" Block() <ident> ";"/*@bgen(jjtree)*/
+    "Procedure" ReturnType() t=<ident>{jjtn000.setIdent(t.image);} "(" (FormalParamList())? ")" Block() <ident> ";"/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
