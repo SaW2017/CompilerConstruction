@@ -56,7 +56,7 @@ public interface Symboltable {
 	 *             (Internal) if the new symbol's name is <code>null</code>.
 	 * @see #openScope(boolean)
 	 */
-	public void addSymbol(Symbol s) throws YAPLException;
+	public void addSymbol(Symbol s) throws YAPLException, YAPLException;
 
 	/**
 	 * Lookup a symbol in the stack of scopes. Symbols in an inner scope hide

@@ -1,6 +1,7 @@
 package yapl;
 
 import yapl.interfaces.Symbol;
+import yapl.lib.YAPLException;
 
 public class Symboltable implements yapl.interfaces.Symboltable {
     @Override
