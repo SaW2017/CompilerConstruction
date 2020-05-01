@@ -1,6 +1,6 @@
 package yapl;
 
-import java.lang.reflect.Type;
+import yapl.lib.Type;
 
 public class Symbol implements yapl.interfaces.Symbol {
     @Override
