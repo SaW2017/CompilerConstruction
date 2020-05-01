@@ -28,14 +28,14 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
             astProgramRoot = parser.Program();
             astProgramRoot.dump("AST: ");
 
-
+            /*
             System.out.println("--> " + astProgramRoot.getProgramName());
             System.out.println("--->" + astProgramRoot.jjtGetNumChildren());
             for(int i = 0 ; i < astProgramRoot.jjtGetNumChildren(); i++){
                 System.out.println("C -> " + ((SimpleNode)astProgramRoot.jjtGetChild(i)).getProgramName());
 
 
-            }
+            }*/
 
             new SymbolChecker().check(astProgramRoot);
 

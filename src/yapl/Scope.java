@@ -14,6 +14,7 @@ public class Scope {
         this.isGlobal = isGlobal;
         this.parentSymbol = parentSymbol;
         this.scopeLevel = scopeLevel;
+        symbols = new HashMap<>();
     }
 
     public boolean isGlobal() {
