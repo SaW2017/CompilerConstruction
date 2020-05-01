@@ -12,7 +12,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
     public Symboltable() {
     }
 
-    public Stack<Scope>
+   // public Stack<Scope>
     public HashMap<String, Symbol> symbolTable;
 
     boolean debugEnabled = false;
@@ -39,7 +39,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
     public Symbol lookup(String name) throws YAPLException {
         if(name == null) throw new YAPLException();
 
-
+        return null;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
     @Override
     public Symbol getNearestParentSymbol(int kind) {
         if(parentSymbol.getKind() == kind) return parentSymbol;
-
+        return null;
     }
 
     @Override

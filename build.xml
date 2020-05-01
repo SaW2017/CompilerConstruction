@@ -19,7 +19,7 @@ User-relevant properties: (customize to your environment)
 	<property name="javacc" location="C:\Program Files\Java\javacc\targetaaaaa"/>
 	<property name="ant-contrib" location="lib/ant-contrib-0.6.jar"/>
     <property name="mj-jar" location="mjvm/mj.jar"/>
-	<property name="version" value="parser"/>
+	<property name="version" value="symbolcheck"/>
 	<property name="yapl" location="testfiles/${version}/test01.yapl"/>
 	<property name="outfile" value="${yapl}.mj"/>
 	<property name="log" value="${yapl}.log"/>
@@ -124,45 +124,26 @@ User-relevant properties: (customize to your environment)
         <echo>Tests passed: ${npassed}/${ntotal}</echo>
     </target>
 
-
-    <target name="javaccC21">
-        <javacc
-                target="${src}/yapl/C21.jj"
+    <target name="javaccTree" depends="init">
+        <jjtree
+                target="${src}/yapl/compiler/Parser.jjt"
                 outputdirectory="${src}/yapl/compiler"
                 javacchome="${javacc}"
-        />
+            />
     </target>
 
-    <target name="javaccC22">
+    <target name="javaccCompile" depends="javaccTree">
         <javacc
-                target="${src}/yapl/Scanner.jj"
-                outputdirectory="${src}/yapl/compiler"
-                javacchome="${javacc}"
-        />
-    </target>
-
-
-    <target name="javaccC23">
-        <javacc
-                target="${src}/yapl/Parser.jj"
+                target="${src}/yapl/compiler/Parser.jj"
                 outputdirectory="${src}/yapl/compiler"
                 javacchome="${javacc}"
         />
     </target>
 
     <target name="deleteJavaccClasses">
-        <delete file="${src}/yapl/compiler/C21.java"/>
-        <delete file="${src}/yapl/compiler/Scanner.java"/>
         <delete file="${src}/yapl/compiler/Parser.java"/>
-
-        <delete file="${src}/yapl/compiler/C21Constants.java"/>
-        <delete file="${src}/yapl/compiler/ScannerConstants.java"/>
         <delete file="${src}/yapl/compiler/ParserConstants.java"/>
-
-        <delete file="${src}/yapl/compiler/C21TokenManager.java"/>
-        <delete file="${src}/yapl/compiler/ScannerTokenManager.java"/>
         <delete file="${src}/yapl/compiler/ParserTokenManager.java"/>
-
         <delete file="${src}/yapl/compiler/SimpleCharStream.java"/>
         <delete file="${src}/yapl/compiler/Token.java"/>
     </target>
@@ -179,19 +160,8 @@ User-relevant properties: (customize to your environment)
         <delete dir="${build}"/>
     </target>
 
-    <target name="runC21" depends="deleteJavaccClasses, javaccC21, compile-java">
-        <java classname="yapl.compiler.C21" classpath="${build}">
 
-        </java>
-    </target>
-
-    <target name="runC22" depends="deleteJavaccClasses, javaccC22, compile-java">
-        <java classname="yapl.compiler.Scanner" classpath="${build}">
-            <arg value="${yapl}"/>
-        </java>
-    </target>
-
-    <target name="run" depends="deleteJavaccClasses, javaccC23, compile-java">
+    <target name="run" depends="deleteJavaccClasses, javaccCompile, compile-java">
         <java classname="yapl.compiler.Parser" classpath="${build}">
             <arg value="${yapl}"/>
         </java>
