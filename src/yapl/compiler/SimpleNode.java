@@ -14,6 +14,42 @@ class SimpleNode implements Node {
   protected String name;
   protected String ident;
   protected int kind;
+  protected boolean isBoolean = false;
+  protected boolean isInteger = false;
+  protected boolean booleanValue = false;
+  protected int integerValue = 0;
+
+  public boolean getBooleanValue() {
+    return booleanValue;
+  }
+
+  public void setBooleanValue(boolean booleanValue) {
+    this.booleanValue = booleanValue;
+  }
+
+  public int getIntegerValue() {
+    return integerValue;
+  }
+
+  public void setIntegerValue(int integerValue) {
+    this.integerValue = integerValue;
+  }
+
+  public boolean isBoolean() {
+    return isBoolean;
+  }
+
+  public void setBoolean(boolean aBoolean) {
+    isBoolean = aBoolean;
+  }
+
+  public boolean isInteger() {
+    return isInteger;
+  }
+
+  public void setInteger(boolean integer) {
+    isInteger = integer;
+  }
 
   public String getProgramName() {
     return programName;

@@ -107,16 +107,22 @@ void Decl():
 
 void ConstDecl():
 {
+ Token t;
 }
 {
-    "Const" <ident> "=" Literal() ";"
+    "Const" t=<ident> "=" Literal() ";"
+    {
+        jjtThis.setIdent(t.image);
+        jjtThis.setKind(Symbol.Constant);
+    }
 }
 
 void VarDecl():
 {
+ Token t;
 }
 {
-    Type() <ident> ("," <ident>)* ";"
+    Type() t=<ident> {jjtThis.setIdent(t.image); jjtThis.setKind(Symbol.Variable);}("," t=<ident> {jjtThis.setIdent(t.image); jjtThis.setKind(Symbol.Variable);})* ";"
 }
 
 void TypeDecl():
@@ -168,9 +174,14 @@ void FormalParamList():
 
 void FormalParam():
 {
+ Token t;
 }
 {
-    Type() <ident>
+    Type() t=<ident>
+    {
+    jjtThis.setIdent(t.image);
+    jjtThis.setKind(Symbol.Parameter);
+    }
 }
 //________________END OF PROCEDUREs____
 
@@ -331,6 +342,7 @@ void Literal():
 {
 }
 {
+
     "True" | "False" | <number>
 }
 //_______________END OF EXPRESSIONs____

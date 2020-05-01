@@ -185,15 +185,25 @@ void Decl():
 
 void ConstDecl():
 {/*@bgen(jjtree) ConstDecl */
-  ASTConstDecl jjtn000 = new ASTConstDecl(JJTCONSTDECL);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
+ ASTConstDecl jjtn000 = new ASTConstDecl(JJTCONSTDECL);
+ boolean jjtc000 = true;
+ jjtree.openNodeScope(jjtn000);
 /*@egen*/
+ Token t;
 }
 {/*@bgen(jjtree) ConstDecl */
     try {
 /*@egen*/
-    "Const" <ident> "=" Literal() ";"/*@bgen(jjtree)*/
+    "Const" t=<ident> "=" Literal() ";"/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    {
+        jjtn000.setIdent(t.image);
+        jjtn000.setKind(Symbol.Constant);
+    }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -218,15 +228,16 @@ void ConstDecl():
 
 void VarDecl():
 {/*@bgen(jjtree) VarDecl */
-  ASTVarDecl jjtn000 = new ASTVarDecl(JJTVARDECL);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
+ ASTVarDecl jjtn000 = new ASTVarDecl(JJTVARDECL);
+ boolean jjtc000 = true;
+ jjtree.openNodeScope(jjtn000);
 /*@egen*/
+ Token t;
 }
 {/*@bgen(jjtree) VarDecl */
     try {
 /*@egen*/
-    Type() <ident> ("," <ident>)* ";"/*@bgen(jjtree)*/
+    Type() t=<ident> {jjtn000.setIdent(t.image); jjtn000.setKind(Symbol.Variable);}("," t=<ident> {jjtn000.setIdent(t.image); jjtn000.setKind(Symbol.Variable);})* ";"/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -440,15 +451,25 @@ void FormalParamList():
 
 void FormalParam():
 {/*@bgen(jjtree) FormalParam */
-  ASTFormalParam jjtn000 = new ASTFormalParam(JJTFORMALPARAM);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
+ ASTFormalParam jjtn000 = new ASTFormalParam(JJTFORMALPARAM);
+ boolean jjtc000 = true;
+ jjtree.openNodeScope(jjtn000);
 /*@egen*/
+ Token t;
 }
 {/*@bgen(jjtree) FormalParam */
     try {
 /*@egen*/
-    Type() <ident>/*@bgen(jjtree)*/
+    Type() t=<ident>/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    {
+    jjtn000.setIdent(t.image);
+    jjtn000.setKind(Symbol.Parameter);
+    }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -1167,6 +1188,7 @@ void Literal():
 {/*@bgen(jjtree) Literal */
     try {
 /*@egen*/
+
     "True" | "False" | <number>/*@bgen(jjtree)*/
     } finally {
       if (jjtc000) {
