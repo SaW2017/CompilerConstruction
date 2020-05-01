@@ -2,6 +2,8 @@ package yapl.interfaces;
 
 import yapl.lib.YAPLException;
 
+import java.util.LinkedList;
+
 /**
  * Interface to the symbol table of the YAPL compiler.
  * <p>
@@ -91,4 +93,5 @@ public interface Symboltable {
 
 	/** Enable/disable debugging output for symbol table operations. */
 	public void setDebug(boolean on);
+
 }
