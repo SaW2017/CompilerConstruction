@@ -21,6 +21,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
     public Symboltable() {
         scopes = new Stack<>();
         scopeLevel = 0;
+        symbolTable = new HashMap<>();
     }
 
     @Override
@@ -39,6 +40,15 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
     @Override
     public void addSymbol(Symbol s) throws YAPLException {
+
+        if(currentScope.getSymbols().containsValue(s)){
+            throw new YAPLException("Symbol already defined in this scope");
+        } else if(currentScope.getSymbols().containsKey(s.getName())){
+            throw new YAPLException("Symbol with name already exists");
+        } else if(s.getName() == null){
+            throw new YAPLException("No name for symbol defined");
+        }
+
         symbolTable.put(s.getName(), s);
         s.setGlobal(currentScope.isGlobal());
     }
