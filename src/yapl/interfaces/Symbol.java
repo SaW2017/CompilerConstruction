@@ -1,6 +1,7 @@
 package yapl.interfaces;
 
-import yapl.lib.Type;
+
+import java.lang.reflect.Type;
 
 /** Interface to YAPL symbols contained in the symbol table.
  * A symbol's data type is represented by an abstract class <code>Type</code>,
