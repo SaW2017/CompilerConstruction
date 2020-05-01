@@ -1,0 +1,4 @@
+Procedure void writeint(int i);
+Procedure void writebool(bool b);
+Procedure void writeln();
+Procedure int readint();
