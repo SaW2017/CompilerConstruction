@@ -19,8 +19,24 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
             System.out.println("Not enough arguments! Please enter file path.");
             return;
         }
+//        Parser parser;
+//
+//        try{
+//            parser = new Parser(new FileInputStream("predefinedProcedures"));
+//        }catch(FileNotFoundException e){
+//            System.out.println("Predefined Procedures not found!");
+//        }
+
+        //TODO Symbolchecking
+
+
         try{
-            Parser parser = new Parser(new FileInputStream(args[0]));
+//            try {
+               Parser parser = new Parser(new FileInputStream(args[0]));
+//            }catch(FileNotFoundException e){
+//                System.out.println(args[0]+ " not found.");
+//                return;
+//            }
             ASTProgram astProgramRoot = null;
             astProgramRoot = parser.Program();
             astProgramRoot.dump("AST: ");
