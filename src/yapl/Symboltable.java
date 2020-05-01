@@ -45,7 +45,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
     @Override
     public Symbol lookup(String name) throws YAPLException {
-        if(name == null) throw new YAPLException();
+        if(name == null) throw new YAPLException("Symbol not must not be null");
 
         return checkScope(currentScope, name);
     }
