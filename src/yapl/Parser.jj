@@ -1,0 +1,351 @@
+options {
+    LOOKAHEAD = 2;
+    DEBUG_TOKEN_MANAGER = true;
+}
+
+PARSER_BEGIN(Parser)
+package yapl.compiler;
+import yapl.interfaces.CompilerError;
+import yapl.lib.CompilerMessage;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+/** CA2.3 */
+public class Parser {
+
+    private static String programName = "";
+
+  /** Main entry point. */
+  public static void main(String args[]) {
+
+        if(args.length < 1){
+            System.out.println("Not enough arguments! Please enter file path.");
+            return;
+        }
+        try{
+            Parser parser = new Parser(new FileInputStream(args[0]));
+            parser.Program();
+            CompilerMessage.printOK(programName);
+        } catch (ParseException e) {
+            CompilerMessage.printError(e, programName);
+        } catch(TokenMgrError e) {
+            CompilerMessage.printError(e, programName);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+   }
+}
+
+PARSER_END(Parser)
+
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+SPECIAL_TOKEN :
+{
+ <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
+
+void Program():
+{
+        Token t;
+}
+{
+    "Program" t = <ident> {  programName = t.toString();} ( Decl() | Procedure())*
+    "Begin" StatementList() "End" <ident> "." <EOF>
+
+
+}
+
+//Decls
+void Decl():
+{
+}
+{
+    "Declare" ( ConstDecl() | VarDecl() | TypeDecl())*
+}
+
+void ConstDecl():
+{
+}
+{
+    "Const" <ident> "=" Literal() ";"
+}
+
+void VarDecl():
+{
+}
+{
+    Type() <ident> ("," <ident>)* ";"
+}
+
+void TypeDecl():
+{
+}
+{
+    "Record" <ident> VarDecl() (VarDecl())* "EndRecord" ";"
+}
+//________________END OF DECs___________
+
+//________________TYPEs_____________
+
+void NonArrayType():
+{
+}
+{
+    "int" | "bool" | <ident>
+}
+
+void Type():
+{
+}
+{
+    NonArrayType() ("[""]")*
+}
+
+void ReturnType():
+{
+}
+{
+    "void" | Type()
+}
+//________________END OF TYPEs________
+
+//________________PROCEDUREs__________
+void Procedure():
+{
+}
+{
+    "Procedure" ReturnType() <ident> "(" (FormalParamList())? ")" Block() <ident> ";"
+}
+
+void FormalParamList():
+{
+}
+{
+    FormalParam() ("," FormalParam())*
+}
+
+void FormalParam():
+{
+}
+{
+    Type() <ident>
+}
+//________________END OF PROCEDUREs____
+
+//________________STATEMENTs___________
+
+void StatementList():
+{
+}
+{
+    (Statement() ";")*
+}
+
+void Statement():
+{
+}
+{
+    IfStatement() | WhileStatement() | ReturnStatement() | WriteStatement() | Assignment() | ProcedureCall() | Block()
+}
+
+void WriteStatement():
+{
+}
+{
+    "Write" <string>
+}
+
+void ReturnStatement():
+{
+}
+{
+    "Return" (Expr())?
+}
+
+void WhileStatement():
+{
+}
+{
+    "While" Expr() "Do" StatementList() "EndWhile"
+}
+
+void IfStatement():
+{
+}
+{
+    "If" Expr() "Then" StatementList() ("Else" StatementList())? "EndIf"
+}
+
+void Assignment():
+{
+}
+{
+    <ident> (Selector())? ":=" Expr()
+}
+
+void ProcedureCall():
+{
+}
+{
+    <ident> "(" (ArgumentList())? ")"
+}
+
+void ArgumentList():
+{
+}
+{
+    Expr() ("," Expr())*
+}
+
+void Block():
+{
+}
+{
+    (Decl())? "Begin" StatementList() "End"
+}
+//________________END OF STATEMENTs_____
+
+//_______________EXPRESSIONs________
+
+void Expr():
+{
+}
+{
+    CondAndExpr() ("Or" CondAndExpr())* | CreationExpr()
+}
+
+void CreationExpr():
+{
+}
+{
+    "new" NonArrayType() ("[" Expr() "]")*
+}
+
+void CondAndExpr():
+{
+}
+{
+    EqualExpr() ("And" EqualExpr())*
+}
+
+void EqualExpr():
+{
+}
+{
+    RelExpr() (EqualOp() RelExpr())?
+}
+
+void RelExpr():
+{
+}
+{
+    AddExpr() (RelOp() AddExpr())?
+}
+
+void AddExpr():
+{
+}
+{
+    MulExpr() (AddOp() MulExpr())*
+}
+
+
+void MulExpr():
+{
+}
+{
+    UnaryExpr() (MulOp() UnaryExpr())*
+}
+
+void UnaryExpr():
+{
+}
+{
+    (AddOp())? PrimaryExpr()
+}
+
+void PrimaryExpr():
+{
+}
+{
+    Literal() | "(" Expr() ")" | ProcedureCall() | <ident> (Selector())? | ArrayLen()
+}
+
+void ArrayLen():
+{
+}
+{
+    "#" <ident> (Selector())?
+}
+
+void Selector():
+{
+}
+{
+    ( "[" Expr()  "]" | "." <ident> ) (Selector())?
+}
+
+void Literal():
+{
+}
+{
+    "True" | "False" | <number>
+}
+//_______________END OF EXPRESSIONs____
+
+//__________________OPs_______________
+void RelOp():
+{
+}
+{
+    "<" | "<=" | ">=" | ">"
+}
+
+void EqualOp():
+{
+}
+{
+    "==" | "!="
+}
+
+void AddOp():
+{
+}
+{
+    "+" | "-"
+}
+
+void MulOp():
+{
+}
+{
+    "*" | "/" | "%"
+}
+//________________END OF OPs___________
+
+
+TOKEN : /* LITERALS */
+{
+
+    <ident: <letter> ( <letter> | <digit> )*>
+|
+    <number: <digit> ( <digit> )*>
+|
+    <string:"\"" ( " " | <letter> | <digit> | <otherchar> )* "\"">
+|
+     <digit: ["0"-"9"] >
+|
+    <letter: ["A"-"Z"]|["a"-"z"]|"_">
+|
+    <otherchar:"+" | "-" | "*" | "/" | "." | "," | ";" | ":" | "!"
+                         | "?" | "=" | "#" | "%" | "<" | ">" | "$" | "(" | ")"
+                         | "[" | "]" | "{" | "}" | "\\" | "@" | "&" | "^" | "|">
+}
