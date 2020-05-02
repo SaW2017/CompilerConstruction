@@ -19,6 +19,10 @@ public class YAPLException extends Exception implements CompilerError {
         super(e.getMessage());
     }
 
+    public YAPLException(String s){
+
+    }
+
     public YAPLException(Symbol s, Node n, int error, String programmName) {
         super();
         this.s = s;
