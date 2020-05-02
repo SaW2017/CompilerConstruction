@@ -1,7 +1,10 @@
 package yapl.lib;
 
 public class YAPLException extends Exception {
-    public YAPLException(){
 
+    String text;
+
+    public YAPLException(String text){
+        this.text = text;
     }
 }

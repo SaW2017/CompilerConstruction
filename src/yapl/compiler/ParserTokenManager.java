@@ -7,6 +7,7 @@ import yapl.interfaces.Symbol;
 import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import yapl.SymbolChecker;
 
 /** Token Manager. */
 @SuppressWarnings ("unused")
