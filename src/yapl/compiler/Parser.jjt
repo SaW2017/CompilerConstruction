@@ -27,6 +27,7 @@ public class Parser {
             System.out.println("Not enough arguments! Please enter file path.");
             return;
         }
+
         try{
             Parser parser = new Parser(new FileInputStream(args[0]));
             ASTProgram astProgramRoot = null;
@@ -38,8 +39,6 @@ public class Parser {
             System.out.println("--->" + astProgramRoot.jjtGetNumChildren());
             for(int i = 0 ; i < astProgramRoot.jjtGetNumChildren(); i++){
                 System.out.println("C -> " + ((SimpleNode)astProgramRoot.jjtGetChild(i)).getProgramName());
-
-
             }*/
 
             new SymbolChecker().check(astProgramRoot);
