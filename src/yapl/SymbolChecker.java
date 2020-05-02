@@ -29,7 +29,7 @@ public class SymbolChecker {
             if(!(endNode.getName().equals(endNode.getProgramName()))){
                 Symbol s = new Symbol();
                 s.setName(endNode.getName());
-                //throw new YAPLException(s, node, CompilerError.EndIdentMismatch, endNode.getProgramName());
+                throw new YAPLException(s, node, CompilerError.EndIdentMismatch, endNode.getProgramName());
             }
         }else if(node instanceof ASTConstDecl){
             ASTConstDecl n = (ASTConstDecl)node;
