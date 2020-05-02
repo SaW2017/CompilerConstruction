@@ -3,12 +3,13 @@ package yapl;
 import yapl.interfaces.Symbol;
 import yapl.lib.YAPLException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Stack;
 
 public class Symboltable implements yapl.interfaces.Symboltable {
 
+    public ArrayList<Scope> globalScopes;
     public Stack<Scope> scopes;
     public Scope currentScope;
     public int scopeLevel;
@@ -22,20 +23,26 @@ public class Symboltable implements yapl.interfaces.Symboltable {
         scopes = new Stack<>();
         scopeLevel = 0;
         symbolTable = new HashMap<>();
+        globalScopes = new ArrayList<>();
     }
 
     @Override
     public void openScope(boolean isGlobal) {
         currentScope = new Scope(isGlobal, (yapl.Symbol)parentSymbol, scopeLevel);
-        scopes.push(currentScope);
+        if(isGlobal){
+            globalScopes.add(currentScope);
+        }else{
+            scopes.push(currentScope);
+        }
         scopeLevel++;
     }
 
     @Override
     public void closeScope() {
-        scopes.pop();
-        currentScope = scopes.pop();
-        scopeLevel--;
+        if(!currentScope.isGlobal()){
+            scopes.pop();
+            currentScope = scopes.pop();
+        }
     }
 
     @Override
@@ -50,30 +57,44 @@ public class Symboltable implements yapl.interfaces.Symboltable {
         }
 
         symbolTable.put(s.getName(), s);
-        s.setGlobal(currentScope.isGlobal());
+
     }
 
     @Override
     public Symbol lookup(String name) throws YAPLException {
         if(name == null) throw new YAPLException("Symbol not must not be null");
 
-        return checkScope(currentScope, name);
+        Symbol s = null;
+
+        s = checkScope(currentScope, name);
+
+        if(s == null)
+        {
+            for(Scope scope : globalScopes){
+                if(scope.getSymbols().containsKey(name)){
+                    s = parentSymbol;
+                }
+            }
+        }
+        return s;
     }
 
     public Symbol checkScope(Scope scope, String name) throws YAPLException{
+
+        Symbol returnSymbol = null;
 
         Symbol s = scope.getParentSymbol();
 
         if(s != null){
             Scope newScope = getScopeViaSymbol(s);
             if(newScope.getSymbols().containsKey(name)){
-                return newScope.getSymbols().get(name);
+                returnSymbol = newScope.getSymbols().get(name);
             }else{
-                return checkScope(newScope, name);
+                returnSymbol = checkScope(newScope, name);
             }
         }
 
-        return s;
+        return returnSymbol;
     }
 
     public Scope getScopeViaSymbol(Symbol symbol) throws YAPLException {
