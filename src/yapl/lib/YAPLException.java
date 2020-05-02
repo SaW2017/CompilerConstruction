@@ -13,7 +13,7 @@ public class YAPLException extends Exception implements CompilerError{
     public YAPLException(Symbol s, Node n, int error, String programmName){
 
     }
-
+    
     @Override
     public int errorNumber() {
         return errorNumber;
