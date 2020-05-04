@@ -20,7 +20,6 @@ public class YAPLException extends Exception implements CompilerError {
     }
 
     public YAPLException(String s){
-
     }
 
     public YAPLException(Symbol s, Node n, int error, String programmName) {
