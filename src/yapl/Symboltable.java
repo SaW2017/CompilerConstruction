@@ -24,26 +24,47 @@ public class Symboltable implements yapl.interfaces.Symboltable {
         scopeLevel = 0;
         symbolTable = new HashMap<>();
         globalScopes = new ArrayList<>();
+        parentSymbol = new yapl.Symbol();
+        currentScope = new Scope(false, null, 0);
+    }
+
+    public int getStacksNum(){
+        return scopes.size();
     }
 
     @Override
     public void openScope(boolean isGlobal) {
         currentScope = new Scope(isGlobal, (yapl.Symbol)parentSymbol, scopeLevel);
-        if(isGlobal){
+
+        if(currentScope.isGlobal()){
             globalScopes.add(currentScope);
         }else{
             scopes.push(currentScope);
         }
         scopeLevel++;
+        if(debugEnabled) System.out.println("Open scope: " + currentScope.toString());
     }
 
     @Override
     public void closeScope() {
+
+        Scope closedScope = currentScope;
+
         if(!currentScope.isGlobal()){
+            //System.out.println("Closing local scope: " + currentScope.getScopeLevel());
             scopes.pop();
-            currentScope = scopes.pop();
+            if(scopes.size() > 0) {
+                currentScope = scopes.peek();
+            } else {
+                currentScope = globalScopes.get(globalScopes.size()-1);
+            }
+        }else{
+            //System.out.println("Closing global scope: " + currentScope.getScopeLevel());
+            globalScopes.remove(currentScope);
+            if(globalScopes.size() > 0) currentScope = globalScopes.get(globalScopes.size()-1);
         }
         scopeLevel--;
+        if(debugEnabled) System.out.println("Close scope: " + closedScope.toString());
     }
 
     @Override
@@ -56,9 +77,9 @@ public class Symboltable implements yapl.interfaces.Symboltable {
         } else if(s.getName() == null){
             throw new YAPLException("No name for symbol defined");
         }
-
+        currentScope.setSymbol((yapl.Symbol)s);
+        if(debugEnabled) System.out.println("Added Symbol: " + currentScope.toString());
         symbolTable.put(s.getName(), s);
-
     }
 
     @Override

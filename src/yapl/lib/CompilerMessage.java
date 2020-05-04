@@ -34,6 +34,8 @@ public class CompilerMessage {
 	 */
 	public static void printError(CompilerError err, String progName)
 	{
+		System.out.println(err.column());
+
 		StringBuffer buf = new StringBuffer();
 		buf.append(prefix);
 		buf.append(progName);

@@ -7,6 +7,7 @@ import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import yapl.SymbolChecker;
+import yapl.lib.YAPLException;
 
 /** CA3 */
 public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConstants {/*@bgen(jjtree)*/
@@ -26,7 +27,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
             Parser parser = new Parser(new FileInputStream(args[0]));
             ASTProgram astProgramRoot = null;
             astProgramRoot = parser.Program();
-            astProgramRoot.dump("AST: ");
+            //astProgramRoot.dump("AST: ");
 
             /*
             System.out.println("--> " + astProgramRoot.getProgramName());
@@ -37,12 +38,15 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
 
             new SymbolChecker().check(astProgramRoot);
 
-            CompilerMessage.printOK(programName);
+            CompilerMessage.printOK(astProgramRoot.name);
         } catch (ParseException e) {
             CompilerMessage.printError(e, programName);
         } catch(TokenMgrError e) {
             CompilerMessage.printError(e, programName);
-        } catch(Exception e){
+        } catch(YAPLException e) {
+            CompilerMessage.printError((CompilerError)e, e.getProgrammName());
+        }
+          catch(Exception e){
             e.printStackTrace();
         }
 
@@ -401,7 +405,7 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
       jj_consume_token(22);
       ReturnType();
       t = jj_consume_token(ident);
-                                       jjtn000.setIdent(t.image);
+                                       jjtn000.setIdent(t.image); jjtn000.setToken(t);
       jj_consume_token(23);
       if (jj_2_16(2)) {
         FormalParamList();
@@ -1849,16 +1853,6 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     finally { jj_save(64, xla); }
   }
 
-  static private boolean jj_3_57() {
-    if (jj_scan_token(43)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_54() {
-    if (jj_scan_token(number)) return true;
-    return false;
-  }
-
   static private boolean jj_3R_20() {
     if (jj_3R_21()) return true;
     return false;
@@ -2311,6 +2305,11 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
+  static private boolean jj_3_16() {
+    if (jj_3R_20()) return true;
+    return false;
+  }
+
   static private boolean jj_3R_33() {
     if (jj_3R_30()) return true;
     Token xsp;
@@ -2343,11 +2342,6 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
 
   static private boolean jj_3_21() {
     if (jj_3R_25()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_16() {
-    if (jj_3R_20()) return true;
     return false;
   }
 
@@ -2548,6 +2542,16 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
 
   static private boolean jj_3_61() {
     if (jj_scan_token(47)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_57() {
+    if (jj_scan_token(43)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_54() {
+    if (jj_scan_token(number)) return true;
     return false;
   }
 

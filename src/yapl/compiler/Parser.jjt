@@ -1,6 +1,6 @@
 options {
     LOOKAHEAD = 2;
-    DEBUG_TOKEN_MANAGER = true;
+    DEBUG_TOKEN_MANAGER = false;
     MULTI = true;
 }
 
@@ -13,6 +13,7 @@ import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import yapl.SymbolChecker;
+import yapl.lib.YAPLException;
 
 /** CA3 */
 public class Parser {
@@ -32,7 +33,7 @@ public class Parser {
             Parser parser = new Parser(new FileInputStream(args[0]));
             ASTProgram astProgramRoot = null;
             astProgramRoot = parser.Program();
-            astProgramRoot.dump("AST: ");
+            //astProgramRoot.dump("AST: ");
 
             /*
             System.out.println("--> " + astProgramRoot.getProgramName());
@@ -43,12 +44,15 @@ public class Parser {
 
             new SymbolChecker().check(astProgramRoot);
 
-            CompilerMessage.printOK(programName);
+            CompilerMessage.printOK(astProgramRoot.name);
         } catch (ParseException e) {
             CompilerMessage.printError(e, programName);
         } catch(TokenMgrError e) {
             CompilerMessage.printError(e, programName);
-        } catch(Exception e){
+        } catch(YAPLException e) {
+            CompilerMessage.printError((CompilerError)e, e.getProgrammName());
+        }
+          catch(Exception e){
             e.printStackTrace();
         }
 
@@ -170,7 +174,7 @@ void Procedure():
  Token t;
 }
 {
-    "Procedure" ReturnType() t=<ident>{jjtThis.setIdent(t.image);} "(" (FormalParamList())? ")" Block() <ident> ";"
+    "Procedure" ReturnType() t=<ident>{jjtThis.setIdent(t.image); jjtThis.setToken(t);} "(" (FormalParamList())? ")" Block() <ident> ";"
 }
 
 void FormalParamList():

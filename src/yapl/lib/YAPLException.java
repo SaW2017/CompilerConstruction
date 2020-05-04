@@ -2,6 +2,7 @@ package yapl.lib;
 
 import yapl.Symbol;
 import yapl.compiler.Node;
+import yapl.compiler.SimpleNode;
 import yapl.interfaces.CompilerError;
 
 public class YAPLException extends Exception implements CompilerError {
@@ -10,6 +11,8 @@ public class YAPLException extends Exception implements CompilerError {
     private Node n;
     private int error;
     private String programmName;
+
+    private String errorMsg = "";
 
     int errorNumber;
     int line;
@@ -20,19 +23,24 @@ public class YAPLException extends Exception implements CompilerError {
     }
 
     public YAPLException(String s){
+        this.errorMsg = s;
     }
 
-    public YAPLException(Symbol s, Node n, int error, String programmName) {
+    public YAPLException(Symbol s, SimpleNode n, int error, String programmName, String msg) {
         super();
         this.s = s;
         this.n = n;
         this.error = error;
+        this.errorNumber = error;
         this.programmName = programmName;
+        line = n.token.beginLine;
+        column = n.token.beginColumn;
+        errorMsg = msg;
     }
     
     @Override
     public int errorNumber() {
-        return errorNumber;
+        return error;
     }
 
     @Override
@@ -45,8 +53,20 @@ public class YAPLException extends Exception implements CompilerError {
         return column;
     }
 
-    @Override
+    public String getProgrammName(){
+        return programmName;
+    }
+
+    public String getMessage(){
+        return errorMsg;
+    }
+
+    /*@Override
     public String getMessage() {
+
+        if(this.errorMsg != ""){
+            return errorMsg;
+        }
 
         String msg = "Error has occured: ";
 
@@ -67,5 +87,5 @@ public class YAPLException extends Exception implements CompilerError {
         msg += " /Column: " + column;
 
         return msg;
-    }
+    }*/
 }

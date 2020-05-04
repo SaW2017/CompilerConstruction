@@ -11,6 +11,15 @@ class SimpleNode implements Node {
   protected Object value;
   protected Parser parser;
 
+  public Token getToken() {
+    return token;
+  }
+
+  public void setToken(Token token) {
+    this.token = token;
+  }
+
+  public Token token;
 
   protected String programName;
   protected String name;
