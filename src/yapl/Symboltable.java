@@ -43,6 +43,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
             scopes.pop();
             currentScope = scopes.pop();
         }
+        scopeLevel--;
     }
 
     @Override
