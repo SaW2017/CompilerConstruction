@@ -4,10 +4,10 @@
  */
 Program test07
 Begin
-    Declare           /* block start */
-        int r;
-    Begin
-        r := 4;
-    End;              /* block end */
+             Declare           /* block start */
+                 int r;
+             Begin
+                 r := 4;
+             End;              /* block end */
     r := 5;
 End test07.

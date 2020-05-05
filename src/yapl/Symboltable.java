@@ -92,6 +92,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
         if(s == null)
         {
+            //System.out.println("Checking global scope");
             for(Scope scope : globalScopes){
                 if(scope.getSymbols().containsKey(name)){
                     s = scope.getParentSymbol();
@@ -100,6 +101,8 @@ public class Symboltable implements yapl.interfaces.Symboltable {
         }
 
         if(s == null) throw new YAPLException("Symbol [" + name + "] does not exist!");
+
+        System.out.println(s.getName() +  " " + s.getKind());
 
         return s;
     }
@@ -112,12 +115,17 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
         Symbol s = scope.getParentSymbol();
 
+        //System.out.println("Symbol: " + s.getName());
+
         if(s != null){
             Scope newScope = getScopeViaSymbol(s);
+
+            //System.out.println("Symbol: " + newScope.getParentSymbol().getName());
 
             if(newScope != null) {
 
                 if (newScope.getSymbols().containsKey(name)) {
+                    //System.out.println("Local symbol found for " + name);
                     returnSymbol = newScope.getSymbols().get(name);
                 } else {
                     returnSymbol = checkScope(newScope, name);
@@ -128,10 +136,14 @@ public class Symboltable implements yapl.interfaces.Symboltable {
         return returnSymbol;
     }
 
-    public Scope getScopeViaSymbol(Symbol symbol) throws YAPLException {
+    public Scope getScopeViaSymbol(Symbol symbol) {
         for(Scope s : scopes){
-            if(s.getSymbols().containsValue(symbol)) return s;
+            if(s.getSymbols().containsValue(symbol)) {
+                //System.out.println("Local symbol found for " + symbol.getName());
+                return s;
+            }
         }
+        //System.out.println("Returning null");
         return null;
     }
 

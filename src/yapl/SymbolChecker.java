@@ -20,7 +20,7 @@ public class SymbolChecker {
 
         Symbol s = new Symbol();
         globalNode = (SimpleNode)node;
-
+        //System.out.println("Entering node: " + "/" + ((SimpleNode) node).getKind());
         try {
 //TODO warum bei ASTProgram 2x  table.openScope(true); ???
             if (node instanceof ASTProgram) {
@@ -78,11 +78,13 @@ public class SymbolChecker {
                 ASTAssignment n = (ASTAssignment) node;
                 table.lookup(n.getIdent());
             }else if(node instanceof ASTPrimaryExpr){
-                if((((ASTPrimaryExpr) node).getKind() != yapl.interfaces.Symbol.Constant)){
+                if((((ASTPrimaryExpr) node).getKind() == yapl.interfaces.Symbol.Procedure || (((ASTPrimaryExpr) node).getKind() == yapl.interfaces.Symbol.Variable))){
                     table.lookup(((ASTPrimaryExpr) node).getName());
                 }
             }else if(node instanceof ASTArrayLen){
                 table.lookup(((ASTArrayLen) node).getIdent());
+            }else if(node instanceof ASTLiteral){
+
             }
             //todo steht in dem File vom Helmut, keine Ahnung ob wir das auch brauchen?
             /**

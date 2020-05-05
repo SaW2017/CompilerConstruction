@@ -318,7 +318,7 @@ void NonArrayType():
 {/*@bgen(jjtree) NonArrayType */
     try {
 /*@egen*/
-    "int" | "bool" | <ident>/*@bgen(jjtree)*/
+    "int" | "bool" |  <ident>/*@bgen(jjtree)*/
     } finally {
       if (jjtc000) {
         jjtree.closeNodeScope(jjtn000, true);
@@ -1116,16 +1116,11 @@ void PrimaryExpr():
 {/*@bgen(jjtree) PrimaryExpr */
     try {
 /*@egen*/
-    t = <ident>{jjtn000.setName(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Variable);} (Selector())? | t = Literal()/*@bgen(jjtree)*/
-                                                                                                                               {
-                                                                                                                                 jjtree.closeNodeScope(jjtn000, true);
-                                                                                                                                 jjtc000 = false;
-                                                                                                                               }
-/*@egen*/{jjtn000.setToken(t); jjtn000.setKind(Symbol.Constant);} | "(" Expr() ")" | t = ProcedureCall()/*@bgen(jjtree)*/
-                                                                                                                                                                                                                              {
-                                                                                                                                                                                                                                jjtree.closeNodeScope(jjtn000, true);
-                                                                                                                                                                                                                                jjtc000 = false;
-                                                                                                                                                                                                                              }
+    t = <ident>{jjtn000.setName(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Variable);} (Selector())? | Literal() | "(" Expr() ")" | t = ProcedureCall()/*@bgen(jjtree)*/
+                                                                                                                                                                  {
+                                                                                                                                                                    jjtree.closeNodeScope(jjtn000, true);
+                                                                                                                                                                    jjtc000 = false;
+                                                                                                                                                                  }
 /*@egen*/{jjtn000.setName(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Procedure);} | ArrayLen()/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -1216,7 +1211,7 @@ void Selector():
 /*@egen*/
 }
 
-Token Literal():
+void Literal():
 {/*@bgen(jjtree) Literal */
     ASTLiteral jjtn000 = new ASTLiteral(JJTLITERAL);
     boolean jjtc000 = true;
@@ -1227,15 +1222,7 @@ Token Literal():
 {/*@bgen(jjtree) Literal */
     try {
 /*@egen*/
-    t = "True" | t = "False" | t = <number>/*@bgen(jjtree)*/
-    {
-      jjtree.closeNodeScope(jjtn000, true);
-      jjtc000 = false;
-    }
-/*@egen*/
-    {
-        return t;
-    }/*@bgen(jjtree)*/
+    "True" | "False" | <number>/*@bgen(jjtree)*/
     } finally {
       if (jjtc000) {
         jjtree.closeNodeScope(jjtn000, true);

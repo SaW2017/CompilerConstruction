@@ -1,4 +1,4 @@
-/* Symbol check test input.
+-all/* Symbol check test input.
  * <expected result> ERROR 11 (line 17, column 5)
  * identifier 'Node' not declared
  */

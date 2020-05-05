@@ -1181,19 +1181,16 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
           ;
         }
       } else if (jj_2_44(2)) {
-        t = Literal();
-                                                                                                                                 jjtree.closeNodeScope(jjtn000, true);
-                                                                                                                                 jjtc000 = false;
-                                                                                                                                jjtn000.setToken(t); jjtn000.setKind(Symbol.Constant);
+        Literal();
       } else if (jj_2_45(2)) {
         jj_consume_token(23);
         Expr();
         jj_consume_token(24);
       } else if (jj_2_46(2)) {
         t = ProcedureCall();
-                                                                                                                                                                                                                                jjtree.closeNodeScope(jjtn000, true);
-                                                                                                                                                                                                                                jjtc000 = false;
-                                                                                                                                                                                                                               jjtn000.setName(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Procedure);
+                                                                                                                                                                    jjtree.closeNodeScope(jjtn000, true);
+                                                                                                                                                                    jjtc000 = false;
+                                                                                                                                                                   jjtn000.setName(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Procedure);
       } else if (jj_2_47(2)) {
         ArrayLen();
       } else {
@@ -1299,21 +1296,18 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     }
   }
 
-  static final public Token Literal() throws ParseException {
+  static final public void Literal() throws ParseException {
  /*@bgen(jjtree) Literal */
     ASTLiteral jjtn000 = new ASTLiteral(JJTLITERAL);
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);Token t;
     try {
       if (jj_2_52(2)) {
-        t = jj_consume_token(39);
+        jj_consume_token(39);
       } else if (jj_2_53(2)) {
-        t = jj_consume_token(40);
+        jj_consume_token(40);
       } else if (jj_2_54(2)) {
-        t = jj_consume_token(number);
-      jjtree.closeNodeScope(jjtn000, true);
-      jjtc000 = false;
-        {if (true) return t;}
+        jj_consume_token(number);
       } else {
         jj_consume_token(-1);
         throw new ParseException();
@@ -1323,7 +1317,6 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
         jjtree.closeNodeScope(jjtn000, true);
       }
     }
-    throw new Error("Missing return statement in function");
   }
 
 //_______________END OF EXPRESSIONs____
@@ -1919,14 +1912,14 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
-  static private boolean jj_3_49() {
-    if (jj_scan_token(19)) return true;
-    if (jj_3R_30()) return true;
+  static private boolean jj_3_12() {
+    if (jj_scan_token(ident)) return true;
     return false;
   }
 
-  static private boolean jj_3_12() {
-    if (jj_scan_token(ident)) return true;
+  static private boolean jj_3_49() {
+    if (jj_scan_token(19)) return true;
+    if (jj_3R_30()) return true;
     return false;
   }
 
@@ -1958,11 +1951,6 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
   static private boolean jj_3R_46() {
     if (jj_scan_token(38)) return true;
     if (jj_scan_token(ident)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_46() {
-    if (jj_3R_28()) return true;
     return false;
   }
 
@@ -2047,12 +2035,6 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     xsp = jj_scanpos;
     if (jj_3_41()) jj_scanpos = xsp;
     if (jj_3R_49()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_45() {
-    if (jj_scan_token(23)) return true;
-    if (jj_3R_30()) return true;
     return false;
   }
 
@@ -2215,6 +2197,11 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
+  static private boolean jj_3_46() {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
   static private boolean jj_3_23() {
     if (jj_3R_27()) return true;
     return false;
@@ -2267,6 +2254,12 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
+  static private boolean jj_3_45() {
+    if (jj_scan_token(23)) return true;
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
   static private boolean jj_3_29() {
     if (jj_3R_33()) return true;
     return false;
@@ -2284,11 +2277,6 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
 
   static private boolean jj_3_22() {
     if (jj_3R_26()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_47() {
-    if (jj_3R_46()) return true;
     return false;
   }
 
@@ -2368,19 +2356,14 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
-  static private boolean jj_3_65() {
-    if (jj_scan_token(51)) return true;
-    return false;
-  }
-
   static private boolean jj_3R_26() {
     if (jj_scan_token(25)) return true;
     if (jj_scan_token(string)) return true;
     return false;
   }
 
-  static private boolean jj_3_64() {
-    if (jj_scan_token(50)) return true;
+  static private boolean jj_3_65() {
+    if (jj_scan_token(51)) return true;
     return false;
   }
 
@@ -2414,8 +2397,19 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
+  static private boolean jj_3_64() {
+    if (jj_scan_token(50)) return true;
+    return false;
+  }
+
   static private boolean jj_3_3() {
     if (jj_3R_15()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_18() {
+    if (jj_3R_22()) return true;
+    if (jj_scan_token(13)) return true;
     return false;
   }
 
@@ -2432,8 +2426,22 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
+  static private boolean jj_3R_31() {
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3_18()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
   static private boolean jj_3_63() {
     if (jj_scan_token(49)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_47() {
+    if (jj_3R_46()) return true;
     return false;
   }
 
@@ -2447,38 +2455,8 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
-  static private boolean jj_3_18() {
-    if (jj_3R_22()) return true;
-    if (jj_scan_token(13)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_31() {
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_18()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
   static private boolean jj_3_51() {
     if (jj_3R_32()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_54() {
-    if (jj_scan_token(number)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_41() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_61()) {
-    jj_scanpos = xsp;
-    if (jj_3_62()) return true;
-    }
     return false;
   }
 
@@ -2497,6 +2475,16 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
+  static private boolean jj_3R_41() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_61()) {
+    jj_scanpos = xsp;
+    if (jj_3_62()) return true;
+    }
+    return false;
+  }
+
   static private boolean jj_3_60() {
     if (jj_scan_token(46)) return true;
     return false;
@@ -2507,14 +2495,19 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
+  static private boolean jj_3_17() {
+    if (jj_scan_token(14)) return true;
+    if (jj_3R_21()) return true;
+    return false;
+  }
+
   static private boolean jj_3_57() {
     if (jj_scan_token(43)) return true;
     return false;
   }
 
-  static private boolean jj_3_17() {
-    if (jj_scan_token(14)) return true;
-    if (jj_3R_21()) return true;
+  static private boolean jj_3_54() {
+    if (jj_scan_token(number)) return true;
     return false;
   }
 
@@ -2533,19 +2526,20 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
-  static private boolean jj_3_56() {
-    if (jj_scan_token(42)) return true;
-    return false;
-  }
-
   static private boolean jj_3R_21() {
     if (jj_3R_19()) return true;
     if (jj_scan_token(ident)) return true;
     return false;
   }
 
-  static private boolean jj_3_53() {
-    if (jj_scan_token(40)) return true;
+  static private boolean jj_3_56() {
+    if (jj_scan_token(42)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_50() {
+    if (jj_scan_token(9)) return true;
+    if (jj_scan_token(ident)) return true;
     return false;
   }
 
@@ -2565,9 +2559,8 @@ public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants, ParserConsta
     return false;
   }
 
-  static private boolean jj_3_50() {
-    if (jj_scan_token(9)) return true;
-    if (jj_scan_token(ident)) return true;
+  static private boolean jj_3_53() {
+    if (jj_scan_token(40)) return true;
     return false;
   }
 

@@ -151,7 +151,7 @@ void NonArrayType():
 {
 }
 {
-    "int" | "bool" | <ident>
+    "int" | "bool" |  <ident>
 }
 
 void Type():
@@ -343,7 +343,7 @@ void PrimaryExpr():
  Token t;
 }
 {
-    t = <ident>{jjtThis.setName(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Variable);} (Selector())? | t = Literal(){jjtThis.setToken(t); jjtThis.setKind(Symbol.Constant);} | "(" Expr() ")" | t = ProcedureCall(){jjtThis.setName(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Procedure);} | ArrayLen()
+    t = <ident>{jjtThis.setName(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Variable);} (Selector())? | Literal() | "(" Expr() ")" | t = ProcedureCall(){jjtThis.setName(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Procedure);} | ArrayLen()
 }
 
 void ArrayLen():
@@ -361,15 +361,12 @@ void Selector():
     ( "[" Expr()  "]" | "." <ident> ) (Selector())?
 }
 
-Token Literal():
+void Literal():
 {
     Token t;
 }
 {
-    t = "True" | t = "False" | t = <number>
-    {
-        return t;
-    }
+    "True" | "False" | <number>
 }
 //_______________END OF EXPRESSIONs____
 
