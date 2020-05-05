@@ -77,6 +77,12 @@ public class SymbolChecker {
             }else if(node instanceof ASTAssignment){
                 ASTAssignment n = (ASTAssignment) node;
                 table.lookup(n.getIdent());
+            }else if(node instanceof ASTPrimaryExpr){
+                if((((ASTPrimaryExpr) node).getKind() != yapl.interfaces.Symbol.Constant)){
+                    table.lookup(((ASTPrimaryExpr) node).getName());
+                }
+            }else if(node instanceof ASTArrayLen){
+                table.lookup(((ASTArrayLen) node).getIdent());
             }
             //todo steht in dem File vom Helmut, keine Ahnung ob wir das auch brauchen?
             /**
@@ -100,8 +106,10 @@ public class SymbolChecker {
                 table.closeScope();
             }
         }catch(YAPLException yex){
-            //System.out.println("Column: " + ((SimpleNode)globalNode).token.beginColumn + "Line: " + ((SimpleNode)globalNode).token.beginLine);
+            System.out.println("Column: " + ((SimpleNode)globalNode).token.beginColumn + "Line: " + ((SimpleNode)globalNode).token.beginLine);
             throw new YAPLException(s, (SimpleNode)globalNode, yex.errorNumber(), programName, yex.getMessage());
+        }catch(Exception ex){
+            ex.printStackTrace();
         }
 
     }

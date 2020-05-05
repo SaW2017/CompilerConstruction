@@ -251,11 +251,17 @@ void Assignment():
     t=<ident> {jjtThis.setIdent(t.image); jjtThis.setToken(t);}(Selector())? ":=" Expr()
 }
 
-void ProcedureCall():
+Token ProcedureCall():
 {
+ Token t;
 }
 {
-    <ident> "(" (ArgumentList())? ")"
+    t = <ident> "(" (ArgumentList())? ")"
+    {
+        jjtThis.setName(t.image);
+        jjtThis.setIdent(t.image);
+        return t;
+    }
 }
 
 void ArgumentList():
@@ -334,16 +340,18 @@ void UnaryExpr():
 
 void PrimaryExpr():
 {
+ Token t;
 }
 {
-    Literal() | "(" Expr() ")" | ProcedureCall() | <ident> (Selector())? | ArrayLen()
+    t = <ident>{jjtThis.setName(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Variable);} (Selector())? | t = Literal(){jjtThis.setToken(t); jjtThis.setKind(Symbol.Constant);} | "(" Expr() ")" | t = ProcedureCall(){jjtThis.setName(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Procedure);} | ArrayLen()
 }
 
 void ArrayLen():
 {
+    Token t;
 }
 {
-    "#" <ident> (Selector())?
+    "#" t = <ident>{jjtThis.setIdent(t.image); jjtThis.setToken(t);} (Selector())?
 }
 
 void Selector():
@@ -353,12 +361,15 @@ void Selector():
     ( "[" Expr()  "]" | "." <ident> ) (Selector())?
 }
 
-void Literal():
+Token Literal():
 {
+    Token t;
 }
 {
-
-    "True" | "False" | <number>
+    t = "True" | t = "False" | t = <number>
+    {
+        return t;
+    }
 }
 //_______________END OF EXPRESSIONs____
 
