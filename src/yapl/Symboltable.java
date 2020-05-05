@@ -73,7 +73,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
         if(currentScope.getSymbols().containsValue(s)){
             throw new YAPLException("Symbol already defined in this scope");
         } else if(currentScope.getSymbols().containsKey(s.getName())){
-            throw new YAPLException("Symbol with name already exists");
+            throw new YAPLException("Symbol with name [" + s.getName() +  "]already exists");
         } else if(s.getName() == null){
             throw new YAPLException("No name for symbol defined");
         }

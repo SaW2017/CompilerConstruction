@@ -101,7 +101,7 @@ ASTEnd End(String programName):
     Token t;
 }
 {
-    t = <ident> { jjtThis.setName(t.image); jjtThis.setProgramName(programName);} "." <EOF>
+    t = <ident> { jjtThis.setName(t.image); jjtThis.setProgramName(programName); jjtThis.setToken(t);} "." <EOF>
     {
         return jjtThis;
     }
@@ -125,6 +125,7 @@ void ConstDecl():
     {
         jjtThis.setIdent(t.image);
         jjtThis.setKind(Symbol.Constant);
+        jjtThis.setToken(t);
     }
 }
 
@@ -133,7 +134,7 @@ void VarDecl():
  Token t;
 }
 {
-    Type() t=<ident> {jjtThis.setIdent(t.image); jjtThis.setKind(Symbol.Variable);}("," t=<ident> {jjtThis.setIdent(t.image); jjtThis.setKind(Symbol.Variable);})* ";"
+    Type() t=<ident> {jjtThis.setIdent(t.image); jjtThis.setKind(Symbol.Variable); jjtThis.setToken(t);}("," t=<ident> {jjtThis.setIdent(t.image); jjtThis.setKind(Symbol.Variable); jjtThis.setToken(t);})* ";"
 }
 
 void TypeDecl():
@@ -193,6 +194,7 @@ void FormalParam():
     {
     jjtThis.setIdent(t.image);
     jjtThis.setKind(Symbol.Parameter);
+    jjtThis.setToken(t);
     }
 }
 //________________END OF PROCEDUREs____
