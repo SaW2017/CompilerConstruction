@@ -84,7 +84,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
     @Override
     public Symbol lookup(String name) throws YAPLException {
-        if(name == null) throw new YAPLException("Symbol not must not be null");
+        if(name == null) throw new YAPLException("Symbol must not be null");
 
         Symbol s = null;
 
@@ -109,6 +109,11 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
         if(s != null){
             Scope newScope = getScopeViaSymbol(s);
+
+            if(newScope == null){
+                throw new YAPLException("Symbol [" + name + "] does not exist!");
+            }
+
             if(newScope.getSymbols().containsKey(name)){
                 returnSymbol = newScope.getSymbols().get(name);
             }else{
@@ -123,7 +128,8 @@ public class Symboltable implements yapl.interfaces.Symboltable {
         for(Scope s : scopes){
             if(s.getSymbols().containsValue(symbol)) return s;
         }
-        throw new YAPLException("Symbol not found in symbol table");
+        return null;
+        //throw new YAPLException("Symbol not found in symbol table");
     }
 
     @Override

@@ -33,7 +33,7 @@ public class Parser {
             Parser parser = new Parser(new FileInputStream(args[0]));
             ASTProgram astProgramRoot = null;
             astProgramRoot = parser.Program();
-            //astProgramRoot.dump("AST: ");
+            astProgramRoot.dump("AST: ");
 
             /*
             System.out.println("--> " + astProgramRoot.getProgramName());
@@ -245,9 +245,10 @@ void IfStatement():
 
 void Assignment():
 {
+ Token t;
 }
 {
-    <ident> (Selector())? ":=" Expr()
+    t=<ident> {jjtThis.setIdent(t.image); jjtThis.setToken(t);}(Selector())? ":=" Expr()
 }
 
 void ProcedureCall():

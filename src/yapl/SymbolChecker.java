@@ -13,7 +13,7 @@ public class SymbolChecker {
 
     public SymbolChecker(){
         table = new Symboltable();
-        table.setDebug(false);
+        table.setDebug(true);
     }
 
     public void check(Node node) throws YAPLException {
@@ -74,6 +74,9 @@ public class SymbolChecker {
                 s.setName(n.getIdent());
                 s.setKind(Symbol.Parameter);
                 table.addSymbol(s);
+            }else if(node instanceof ASTAssignment){
+                ASTAssignment n = (ASTAssignment) node;
+                table.lookup(n.getIdent());
             }
             //todo steht in dem File vom Helmut, keine Ahnung ob wir das auch brauchen?
             /**
