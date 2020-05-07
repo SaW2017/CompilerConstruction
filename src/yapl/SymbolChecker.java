@@ -4,6 +4,10 @@ import yapl.compiler.*;
 import yapl.interfaces.CompilerError;
 import yapl.lib.YAPLException;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+
 
 public class SymbolChecker {
 
@@ -92,7 +96,10 @@ public class SymbolChecker {
                 System.out.println("~~~~~> " + identStr);
                 if((identStr != null) && !(identStr.equals("null"))){
                     Symbol parentSym = (yapl.Symbol)table.lookup(identStr);
-                    Symbol s1 = parentSym.getScope().getSymbols().get(identStr);
+                    System.out.println("Parentsymbol from lookup: " + parentSym.getName());
+                    Symbol s1 = Scope.getSymbolInScope(identStr, parentSym);
+
+                    //Symbol s1 = parentSym.getScope().getSymbols().get(identStr);
                     System.out.println("------> " + s1);
                     //System.out.println("Kind sym["+s1.getName()+"]");
                     //System.out.println("-> " + s1.getKind());

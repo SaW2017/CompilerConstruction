@@ -92,11 +92,18 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
         if(s == null)
         {
-            //System.out.println("Checking global scope");
-            for(Scope scope : globalScopes){
+            System.out.println("Checking global scope of size: " + globalScopes.size());
+            int i = globalScopes.size() - 1;
+            while(i >= 0){
+                Scope scope = globalScopes.get(i);
+            //for(Scope scope : globalScopes){
                 if(scope.getSymbols().containsKey(name)){
-                    s = scope.getParentSymbol();
+                    System.out.println("==> Global symbol found for " + name);
+                    System.out.println("Parent symbol of scope: " + scope.getParentSymbol().getName());
+                    return scope.getParentSymbol();
+                    //s = scope.getParentSymbol();
                 }
+                i--;
             }
         }
 
@@ -115,19 +122,18 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
         Symbol s = scope.getParentSymbol();
 
-        //System.out.println("Symbol: " + s.getName());
+        System.out.println("Symbol: " + s.getName());
 
         if(s != null){
             Scope newScope = getScopeViaSymbol(s);
 
-            //System.out.println("Symbol: " + newScope.getParentSymbol().getName());
-
             if(newScope != null) {
 
                 if (newScope.getSymbols().containsKey(name)) {
-                    //System.out.println("Local symbol found for " + name);
+                    System.out.println("==> Local symbol found for " + name);
                     returnSymbol = newScope.getSymbols().get(name);
                 } else {
+                    System.out.println("No symbol found on this level ");
                     returnSymbol = checkScope(newScope, name);
                 }
             }
@@ -139,7 +145,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
     public Scope getScopeViaSymbol(Symbol symbol) {
         for(Scope s : scopes){
             if(s.getSymbols().containsValue(symbol)) {
-                //System.out.println("Local symbol found for " + symbol.getName());
+                System.out.println("Local symbol found for " + symbol.getName());
                 return s;
             }
         }

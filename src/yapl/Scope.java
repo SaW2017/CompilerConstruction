@@ -1,9 +1,7 @@
 package yapl;
 
 import javax.xml.validation.SchemaFactoryConfigurationError;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 public class Scope {
 
@@ -67,5 +65,21 @@ public class Scope {
         scopeText += "Parent symbol: " + parentSymbol.getName() + ", kind: " + parentSymbol.getKindString() + ", Scope Level: " + scopeLevel + ", isGLobal: " + isGlobal + ", Symbole: ";
         for(Symbol s : symbols.values()) scopeText += s.name + ", ";
         return scopeText;
+    }
+
+    public static Symbol getSymbolInScope(String str, Symbol parentSymbol){
+        Iterator it = parentSymbol.getScope().getSymbols().entrySet().iterator();
+        System.out.println("#symbols: " + parentSymbol.getScope().getSymbols().size());
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            Symbol sym = (yapl.Symbol)pair.getValue();
+            System.out.println("Symbol in scope: " + sym.getName() + " with key: " + pair.getKey().toString());
+            if(sym.getName().equals(str)){
+                //System.out.println("Symbol found in scope: " + pair.getKey() + " => " + pair.getValue());
+                return (yapl.Symbol)pair.getValue();
+            }
+            it.remove(); // avoids a ConcurrentModificationException
+        }
+        return null;
     }
 }
