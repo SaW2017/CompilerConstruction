@@ -100,7 +100,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
             }
         }
 
-        if(s == null) throw new YAPLException("Symbol [" + name + "] does not exist!");
+        if(s == null) throw new YAPLException("identifier " + name + " not declared");
 
         System.out.println(s.getName() +  " " + s.getKind());
 
