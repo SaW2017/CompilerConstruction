@@ -256,10 +256,8 @@ Token ProcedureCall():
  Token t;
 }
 {
-    t = <ident> "(" (ArgumentList())? ")"
+    t = <ident>{jjtThis.setIdent(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Procedure);} "(" (ArgumentList())? ")"
     {
-        jjtThis.setName(t.image);
-        jjtThis.setIdent(t.image);
         return t;
     }
 }

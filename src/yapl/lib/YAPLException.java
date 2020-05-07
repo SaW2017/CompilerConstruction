@@ -13,8 +13,6 @@ public class YAPLException extends Exception implements CompilerError {
     private String programmName;
 
     private String errorMsg = "";
-
-    int errorNumber;
     int line;
     int column;
 
@@ -31,7 +29,6 @@ public class YAPLException extends Exception implements CompilerError {
         this.s = s;
         this.n = n;
         this.error = error;
-        this.errorNumber = error;
         this.programmName = programmName;
         line = n.token.beginLine;
         column = n.token.beginColumn;

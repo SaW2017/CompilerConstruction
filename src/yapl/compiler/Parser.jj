@@ -738,15 +738,13 @@ Token ProcedureCall():
 {/*@bgen(jjtree) ProcedureCall */
     try {
 /*@egen*/
-    t = <ident> "(" (ArgumentList())? ")"/*@bgen(jjtree)*/
+    t = <ident>{jjtn000.setIdent(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Procedure);} "(" (ArgumentList())? ")"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
     {
-        jjtn000.setName(t.image);
-        jjtn000.setIdent(t.image);
         return t;
     }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
