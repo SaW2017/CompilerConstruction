@@ -88,10 +88,19 @@ public class SymbolChecker {
 
                 //neu
                 //check if variable exists
-                Symbol sym = (yapl.Symbol)table.lookup(((ASTPrimaryExpr) node).getIdent());
-                System.out.println("Kind sym["+sym.getName()+"] = " + sym.getKind() + " Kind node["+((ASTPrimaryExpr) node).getIdent()+"] = " + ((ASTPrimaryExpr) node).getKind());
+                String identStr = ((ASTPrimaryExpr) node).getIdent();
+                System.out.println("~~~~~> " + identStr);
+                if((identStr != null) && !(identStr.equals("null"))){
+                    Symbol parentSym = (yapl.Symbol)table.lookup(identStr);
+                    Symbol s1 = parentSym.getScope().getSymbols().get(identStr);
+                    System.out.println("------> " + s1);
+                    //System.out.println("Kind sym["+s1.getName()+"]");
+                    //System.out.println("-> " + s1.getKind());
+                    //System.out.println("--> ["+((ASTPrimaryExpr) node).getIdent()+"]");
+                    //System.out.println("---> " + ((ASTPrimaryExpr) node).getKind());
 
-                if(sym.getKind() != ((ASTPrimaryExpr) node).getKind()) throw new YAPLException(s, (ASTPrimaryExpr)node, CompilerError.SymbolIllegalUse, programName, "");
+                    //if(s1.getKind() != ((ASTPrimaryExpr) node).getKind()) throw new YAPLException(s, (ASTPrimaryExpr)node, CompilerError.SymbolIllegalUse, programName, "");
+                }
 
             }else if(node instanceof ASTProcedureCall){
                 //check if procedure is declared
@@ -136,6 +145,7 @@ public class SymbolChecker {
         }
 
     }
+
 
 
 }

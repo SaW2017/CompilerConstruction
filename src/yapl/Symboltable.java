@@ -13,7 +13,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
     public Stack<Scope> scopes;
     public Scope currentScope;
     public int scopeLevel;
-
+    //kann weg, wird nur einmal put ausgeführt und das wars
     public HashMap<String, Symbol> symbolTable;
 
     boolean debugEnabled = false;
@@ -102,14 +102,14 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
         if(s == null) throw new YAPLException("identifier " + name + " not declared");
 
-        System.out.println(s.getName() +  " " + s.getKind());
+        //System.out.println(s.getName() +  " " + s.getKind());
 
         return s;
     }
 
     public Symbol checkScope(Scope scope, String name) throws YAPLException{
 
-        System.out.println("Lookup for: " + name + " in Scope: " + scope.getParentSymbol().getName());
+        //System.out.println("Lookup for: " + name + " in Scope: " + scope.getParentSymbol().getName());
 
         Symbol returnSymbol = null;
 

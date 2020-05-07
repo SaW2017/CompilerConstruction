@@ -17,6 +17,10 @@ public class Scope {
         this.parentSymbol = parentSymbol;
         this.scopeLevel = scopeLevel;
         symbols = new HashMap<>();
+        if(parentSymbol != null){
+            parentSymbol.setScope(this);
+        }
+
     }
 
     public boolean isGlobal() {

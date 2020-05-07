@@ -14,10 +14,19 @@ public class Symbol implements yapl.interfaces.Symbol {
     boolean isGlobal = false;
     int offset = 0;
     boolean symbolSeen = false;
+    Scope scope = null;
 
     public LinkedList<Symbol> symbolLinkedList = new LinkedList<Symbol>();
 
     public Symbol() {
+    }
+
+    public void setScope(Scope scope){
+        this.scope = scope;
+    }
+
+    public Scope getScope(){
+        return scope;
     }
 
     @Override
