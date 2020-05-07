@@ -139,9 +139,10 @@ void VarDecl():
 
 void TypeDecl():
 {
+ Token t;
 }
 {
-    "Record" <ident> VarDecl() (VarDecl())* "EndRecord" ";"
+    "Record" t=<ident>{jjtThis.setName(t.image); jjtThis.setKind(Symbol.Typename);} VarDecl() (VarDecl())* "EndRecord" ";"
 }
 //________________END OF DECs___________
 
@@ -251,15 +252,13 @@ void Assignment():
     t=<ident> {jjtThis.setIdent(t.image); jjtThis.setToken(t);}(Selector())? ":=" Expr()
 }
 
-Token ProcedureCall():
+void ProcedureCall():
 {
  Token t;
 }
 {
-    t = <ident>{jjtThis.setIdent(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Procedure);} "(" (ArgumentList())? ")"
-    {
-        return t;
-    }
+    t = <ident> {jjtThis.setIdent(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Procedure);} "(" (ArgumentList())? ")"
+
 }
 
 void ArgumentList():
@@ -338,10 +337,10 @@ void UnaryExpr():
 
 void PrimaryExpr():
 {
- Token t;
+    Token t;
 }
 {
-    t = <ident>{jjtThis.setName(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Variable);} (Selector())? | Literal() | "(" Expr() ")" | t = ProcedureCall(){jjtThis.setName(t.image); jjtThis.setToken(t); jjtThis.setKind(Symbol.Procedure);} | ArrayLen()
+    Literal() | "(" Expr() ")" | ProcedureCall() | t=<ident> {jjtThis.setIdent(t.image); jjtThis.setKind(Symbol.Variable); jjtThis.setToken(t);}(Selector())? | ArrayLen()
 }
 
 void ArrayLen():
@@ -352,11 +351,13 @@ void ArrayLen():
     "#" t = <ident>{jjtThis.setIdent(t.image); jjtThis.setToken(t);} (Selector())?
 }
 
+//to select variables in a record
 void Selector():
 {
+ Token t;
 }
 {
-    ( "[" Expr()  "]" | "." <ident> ) (Selector())?
+    ( "[" Expr()  "]" | "." t=<ident> {jjtThis.setIdent(t.image); jjtThis.setKind(Symbol.Variable); jjtThis.setToken(t);} ) (Selector())?
 }
 
 void Literal():

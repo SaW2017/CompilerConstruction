@@ -1,0 +1,7 @@
+Program diyTest
+Declare
+	Const len = 10;
+    int i;
+Begin
+    i := len + abc() + i;
+End diyTest.

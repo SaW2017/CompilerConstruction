@@ -29,6 +29,7 @@ class SimpleNode implements Node {
   protected boolean isInteger = false;
   protected boolean booleanValue = false;
   protected int integerValue = 0;
+  protected String dataType = "";
 
   public boolean getBooleanValue() {
     return booleanValue;

@@ -274,15 +274,16 @@ void VarDecl():
 
 void TypeDecl():
 {/*@bgen(jjtree) TypeDecl */
-  ASTTypeDecl jjtn000 = new ASTTypeDecl(JJTTYPEDECL);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
+ ASTTypeDecl jjtn000 = new ASTTypeDecl(JJTTYPEDECL);
+ boolean jjtc000 = true;
+ jjtree.openNodeScope(jjtn000);
 /*@egen*/
+ Token t;
 }
 {/*@bgen(jjtree) TypeDecl */
     try {
 /*@egen*/
-    "Record" <ident> VarDecl() (VarDecl())* "EndRecord" ";"/*@bgen(jjtree)*/
+    "Record" t=<ident>{jjtn000.setName(t.image); jjtn000.setKind(Symbol.Typename);} VarDecl() (VarDecl())* "EndRecord" ";"/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -727,7 +728,7 @@ void Assignment():
 /*@egen*/
 }
 
-Token ProcedureCall():
+void ProcedureCall():
 {/*@bgen(jjtree) ProcedureCall */
  ASTProcedureCall jjtn000 = new ASTProcedureCall(JJTPROCEDURECALL);
  boolean jjtc000 = true;
@@ -738,15 +739,7 @@ Token ProcedureCall():
 {/*@bgen(jjtree) ProcedureCall */
     try {
 /*@egen*/
-    t = <ident>{jjtn000.setIdent(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Procedure);} "(" (ArgumentList())? ")"/*@bgen(jjtree)*/
-    {
-      jjtree.closeNodeScope(jjtn000, true);
-      jjtc000 = false;
-    }
-/*@egen*/
-    {
-        return t;
-    }/*@bgen(jjtree)*/
+    t = <ident> {jjtn000.setIdent(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Procedure);} "(" (ArgumentList())? ")"/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -767,6 +760,7 @@ Token ProcedureCall():
       }
     }
 /*@egen*/
+
 }
 
 void ArgumentList():
@@ -1105,21 +1099,16 @@ void UnaryExpr():
 
 void PrimaryExpr():
 {/*@bgen(jjtree) PrimaryExpr */
- ASTPrimaryExpr jjtn000 = new ASTPrimaryExpr(JJTPRIMARYEXPR);
- boolean jjtc000 = true;
- jjtree.openNodeScope(jjtn000);
+    ASTPrimaryExpr jjtn000 = new ASTPrimaryExpr(JJTPRIMARYEXPR);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
 /*@egen*/
- Token t;
+    Token t;
 }
 {/*@bgen(jjtree) PrimaryExpr */
     try {
 /*@egen*/
-    t = <ident>{jjtn000.setName(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Variable);} (Selector())? | Literal() | "(" Expr() ")" | t = ProcedureCall()/*@bgen(jjtree)*/
-                                                                                                                                                                  {
-                                                                                                                                                                    jjtree.closeNodeScope(jjtn000, true);
-                                                                                                                                                                    jjtc000 = false;
-                                                                                                                                                                  }
-/*@egen*/{jjtn000.setName(t.image); jjtn000.setToken(t); jjtn000.setKind(Symbol.Procedure);} | ArrayLen()/*@bgen(jjtree)*/
+    Literal() | "(" Expr() ")" | ProcedureCall() | t=<ident> {jjtn000.setIdent(t.image); jjtn000.setKind(Symbol.Variable); jjtn000.setToken(t);}(Selector())? | ArrayLen()/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -1176,17 +1165,19 @@ void ArrayLen():
 /*@egen*/
 }
 
+//to select variables in a record
 void Selector():
 {/*@bgen(jjtree) Selector */
-  ASTSelector jjtn000 = new ASTSelector(JJTSELECTOR);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
+ ASTSelector jjtn000 = new ASTSelector(JJTSELECTOR);
+ boolean jjtc000 = true;
+ jjtree.openNodeScope(jjtn000);
 /*@egen*/
+ Token t;
 }
 {/*@bgen(jjtree) Selector */
     try {
 /*@egen*/
-    ( "[" Expr()  "]" | "." <ident> ) (Selector())?/*@bgen(jjtree)*/
+    ( "[" Expr()  "]" | "." t=<ident> {jjtn000.setIdent(t.image); jjtn000.setKind(Symbol.Variable); jjtn000.setToken(t);} ) (Selector())?/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);

@@ -18,6 +18,7 @@ public class SymbolChecker {
 
     public void check(Node node) throws YAPLException {
 
+        System.out.println("Working on Node = " + node.getClass());
         Symbol s = new Symbol();
         globalNode = (SimpleNode)node;
         //System.out.println("Entering node: " + "/" + ((SimpleNode) node).getKind());
@@ -77,24 +78,35 @@ public class SymbolChecker {
             }else if(node instanceof ASTAssignment){
                 ASTAssignment n = (ASTAssignment) node;
                 table.lookup(n.getIdent());
-            }else if(node instanceof ASTPrimaryExpr){
-                if((((ASTPrimaryExpr) node).getKind() == yapl.interfaces.Symbol.Procedure ||
+            }else if(node instanceof ASTPrimaryExpr) {
+                //alt
+                /*if((((ASTPrimaryExpr) node).getKind() == yapl.interfaces.Symbol.Procedure ||
                         (((ASTPrimaryExpr) node).getKind() == yapl.interfaces.Symbol.Variable))){
                     Symbol sym = (yapl.Symbol)table.lookup(((ASTPrimaryExpr) node).getName());
                     if(sym.getKind() != ((ASTPrimaryExpr) node).getKind()) throw new YAPLException(s, (ASTPrimaryExpr)node, CompilerError.SymbolIllegalUse, programName, "");
-                }
+                }*/
+
+                //neu
+                //check if variable exists
+                Symbol sym = (yapl.Symbol)table.lookup(((ASTPrimaryExpr) node).getIdent());
+                System.out.println("Kind sym["+sym.getName()+"] = " + sym.getKind() + " Kind node["+((ASTPrimaryExpr) node).getIdent()+"] = " + ((ASTPrimaryExpr) node).getKind());
+
+                if(sym.getKind() != ((ASTPrimaryExpr) node).getKind()) throw new YAPLException(s, (ASTPrimaryExpr)node, CompilerError.SymbolIllegalUse, programName, "");
+
+            }else if(node instanceof ASTProcedureCall){
+                //check if procedure is declared
             }else if(node instanceof ASTArrayLen){
                 table.lookup(((ASTArrayLen) node).getIdent());
             }else if(node instanceof ASTLiteral){
-
-            }else if(node instanceof ASTProcedureCall){
+                //brauch ma net
+            }/*else if(node instanceof ASTProcedureCall){
                 ASTProcedureCall n = (ASTProcedureCall) node;
                 System.out.println("Looking for: " + n.getName());
                 Symbol sym = (yapl.Symbol) table.lookup(n.getName());
                 System.out.println("Symbol kind: " + s.getKindString() + " " + s.getName());
                 System.out.println("Found Symbol: " + sym.getKindString());
                 if(s.getKind() != sym.getKind()) throw new YAPLException(s, n, CompilerError.SymbolIllegalUse, programName, "");
-            }
+            }*/
             //todo steht in dem File vom Helmut, keine Ahnung ob wir das auch brauchen?
             /**
              * else if(node instanceof ASTAssignmentOrProcedurCall){
