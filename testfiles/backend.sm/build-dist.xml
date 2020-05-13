@@ -1,15 +1,15 @@
-<project name="YAPL Compiler - Backend Testing" default="compile-java" basedir=".">
+<project name="YAPL Compiler - Backend Testing" default="compile-java" basedir="../../src/yapl/test/backend/sm">
 	<description>
 ANT build file for the YAPL compiler, backend testing programs.
 M. Taschwer, March 2016
 	</description>
 	
     <!-- customize to your environment -->
-	<property name="globalbasedir" location="../../../../.."/>
-	<property name="src" location="${globalbasedir}/src"/>
-	<property name="build" location="${globalbasedir}/ant-bin"/>
-    <property name="ant-contrib-jar" location="${globalbasedir}/lib/ant-contrib.jar"/>
-    <property name="mj-jar" location="${globalbasedir}/mjvm/mj.jar"/>
+	<property name="globalbasedir" location="../.."/>
+	<property name="src" location="/"/>
+	<property name="build" location="/ant-bin"/>
+    <property name="ant-contrib-jar" location="/lib/ant-contrib.jar"/>
+    <property name="mj-jar" location="/mjvm/MJ.jar"/>
 
 	<!--TODO add testnames here-->
     <!-- list of Java test classes -->
@@ -21,15 +21,15 @@ M. Taschwer, March 2016
     <property name="runtimeoutput" location="Test1.txt"/>
     <property name="truefile" location="Test1.true"/>
 
-    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${ant-contrib-jar}"/>
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="/lib/ant-contrib.jar"/>
 
 	<target name="init">
-		<mkdir dir="${build}" />
+		<mkdir dir="/ant-bin" />
 	</target>
 
 	<target name="compile-java" depends="init"
         description="compile the sources" >
-		<javac srcdir="${src}" destdir="${build}" debug="on" includeantruntime="false">
+		<javac srcdir="${src}" destdir="/ant-bin" debug="on" includeantruntime="false">
 			<include name="yapl/impl/*.java"/>
 			<include name="yapl/interfaces/*.java"/>
 			<include name="yapl/test/backend/sm/*.java"/>
@@ -40,7 +40,7 @@ M. Taschwer, March 2016
 		description="runs 'mainclass' with argument 'outfile' (given by properties).">
 		<java classname="${mainclass}">
 			<classpath>
-				<pathelement location="${build}"/>
+				<pathelement location="/ant-bin"/>
 				<pathelement path="${java.class.path}"/>
 			</classpath>
 			<arg value="${outfile}"/>
@@ -49,7 +49,7 @@ M. Taschwer, March 2016
 
 	<target name="run-mj" depends="run-backend" 
 		description="executes generated code 'outfile', writing output to 'runtimeoutput'">
-		<java classname="MJ.Run" classpath="${mj-jar}" fork="true" output="${runtimeoutput}">
+		<java classname="MJ.Run" classpath="${mj-jar}" fork="true" output="/testfiles/backend.sm/Test1.txt">
 			<arg value="${outfile}"/>
 		</java>
 	    <echo>Wrote output to ${runtimeoutput}</echo>
@@ -60,7 +60,7 @@ M. Taschwer, March 2016
 		<fail message="output file is not correct: ${runtimeoutput}">
 			<condition>
 				<not>
-					<filesmatch file1="${runtimeoutput}" file2="${truefile}" textfile="true"/>
+					<filesmatch file1="/testfiles/backend.sm/Test1.txt" file2="/testfiles/backend.sm/Test1.true" textfile="true"/>
 				</not>
 			</condition>
 		</fail>
@@ -94,7 +94,7 @@ M. Taschwer, March 2016
 	
 	<target name="clean" description="remove generated files">
 		<delete>
-			<fileset dir="." includes="*.mj *.txt" />
+			<fileset dir="../../src/yapl/test/backend/sm" includes="*.mj *.txt" />
 		</delete>
 	</target>
 	
