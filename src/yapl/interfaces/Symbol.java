@@ -20,6 +20,7 @@ public interface Symbol
     public static final int Typename      = 4; // record name
     public static final int Field         = 5;
 	public static final int Parameter     = 6; // formal parameter
+	public static final int PredefinedProcedure     = 7; // formal parameter
 
 	/** Return the symbol's kind. */
 	public int getKind();

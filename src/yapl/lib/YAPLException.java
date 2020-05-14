@@ -37,4 +37,8 @@ public class YAPLException extends Exception implements CompilerError {
     public int column() {
         return column;
     }
+
+    public String getMessage(){
+        return this.msg;
+    }
 }

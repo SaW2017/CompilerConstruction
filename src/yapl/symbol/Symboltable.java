@@ -8,7 +8,7 @@ import java.util.Stack;
 
 public class Symboltable implements yapl.interfaces.Symboltable {
 
-    public Symboltable(){
+    public Symboltable() {
         //TODO: Predefined Procedures in Scopes inkludieren
     }
 
@@ -19,45 +19,73 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
     @Override
     public void openScope(boolean isGlobal) {
-        Scope newScope = new Scope(isGlobal, (yapl.symbol.Symbol)parentSymbol, currentScope);
+        Scope newScope = new Scope(isGlobal, (yapl.symbol.Symbol) parentSymbol, currentScope);
         scopeStack.push(newScope);
         currentScope = scopeStack.peek();
     }
 
     @Override
     public void closeScope() {
-        scopeStack.pop();
-        currentScope = scopeStack.peek();
+        if (scopeStack.size() > 1) {
+            scopeStack.pop();
+            currentScope = scopeStack.peek();
+        }
     }
 
     @Override
     public void addSymbol(Symbol s) throws YAPLException {
-        if(currentScope.hasSymbol(s.getName()) || currentScope.hasSymbol((yapl.symbol.Symbol)s)) {
-            throw new YAPLException("Symbol already declared.", CompilerError.SymbolExists, ((yapl.symbol.Symbol)s).getLine(), ((yapl.symbol.Symbol)s).getColumn());
+        System.out.println("Adding symbol: " + s.getName());
+        if (currentScope.hasSymbol(s.getName()) || currentScope.hasSymbol((yapl.symbol.Symbol) s)) {
+            Symbol existingSymbol = currentScope.getSymbols().get(s.getName());
+            if(s.getKindString() != null ){ //&& s.getKind() == existingSymbol.getKind()) {
+                throw new YAPLException("symbol '" + s.getName() + "' already declared in current scope (as " + existingSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, ((yapl.symbol.Symbol) s).getLine(), ((yapl.symbol.Symbol) s).getColumn());
+            }
         }
-        currentScope.addSymbol(s.getName(), (yapl.symbol.Symbol)s);
+        currentScope.addSymbol(s.getName(), (yapl.symbol.Symbol) s);
     }
 
     @Override
-    public Symbol lookup(String name){return null;}
+    public Symbol lookup(String name) {
+        return null;
+    }
 
     public Symbol lookup(String name, int line, int column) throws YAPLException {
+        Symbol s = null;
+
+        System.out.println("Looking for '" + name + "' in line/col " + line + "/" + column);
+
         currentScope.hasSymbol(name);
 
-        Symbol s = checkScope(currentScope.getParentScope(), name);
+        s = checkScope(currentScope, name);
 
-        if (s == null) throw new YAPLException("", CompilerError.IdentNotDecl, line, column);
+        Scope newScope = currentScope.getParentScope();
+
+        if (s == null && newScope != null) {
+            s = checkScope(newScope, name);
+        }
 
         return s;
     }
 
-    public Symbol checkScope(Scope scope, String name){
+    public Symbol checkScope(Scope scope, String name) {
         Symbol s = null;
 
-        if(scope.hasSymbol(name)) return scope.getSymbols().get(name);
+        System.out.println("Looking for '" + name + "' in Scope with symbols: " + scope.getSymbols().keySet());
 
-        if(scope.getParentScope() != null){
+        if (scope.hasSymbol(name)) return scope.getSymbols().get(name);
+
+        if (scope.getParentScope() != null) {
             s = checkScope(scope.getParentScope(), name);
+        }
+
+        return s;
+    }
+
+    public Symbol getSymbolFromCurrentScope(String name){
+        Symbol s = null;
+
+        if(currentScope.hasSymbol(name)){
+           s = currentScope.getSymbols().get(name);
         }
 
         return s;

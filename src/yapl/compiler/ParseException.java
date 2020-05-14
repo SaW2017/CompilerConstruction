@@ -13,7 +13,7 @@ import yapl.interfaces.CompilerError;
  * You can modify this class to customize your error reporting
  * mechanisms so long as you retain the public fields.
  */
-public class ParseException extends Exception implements CompilerError {
+public class ParseException extends Error implements CompilerError {
 
   /**
    * The version identifier for this Serializable class.

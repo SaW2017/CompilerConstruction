@@ -64,6 +64,9 @@
     </target>
 
     <target name="eval-all" description="evaluate all test cases of a given compiler 'version'">
+        <echo>##############################</echo>
+        <echo>### HAPPY BIRTHDAY, KLAUS! ###</echo>
+        <echo>##############################</echo>
         <var name="npassed" value="0"/>
         <var name="ntotal" value="0"/>
         <for param="yapl">
@@ -136,28 +139,23 @@
                 javacchome="${javacc}"
         />
     </target>
-    <target name="javaccTree" depends="init">
-        <jjtree
-                target="${src}/yapl/compiler/Parser.jjt"
-                outputdirectory="${src}/yapl/compiler"
-                javacchome="${javacc}"
-        />
-    </target>
+<!--    <target name="javaccTree" depends="init">-->
+<!--        <jjtree-->
+<!--                target="${src}/yapl/compiler/Parser.jjt"-->
+<!--                outputdirectory="${src}/yapl/compiler"-->
+<!--                javacchome="${javacc}"-->
+<!--        />-->
+<!--    </target>-->
 
 
     <!--<target name="javaccCompile" depends="javaccTree">-->
-    <target name="javaccCompile" depends="init">
+<!--    <target name="javaccCompile" depends="javaccTree">-->
 <!--        <javacc-->
 <!--                target="${src}/yapl/compiler/Parser.jj"-->
 <!--                outputdirectory="${src}/yapl/compiler"-->
 <!--                javacchome="${javacc}"-->
 <!--        />-->
-        <javacc
-                target="${src}/yapl/compiler/Symbolchecker.jj"
-                outputdirectory="${src}/yapl/symbol"
-                javacchome="${javacc}"
-        />
-    </target>
+<!--    </target>-->
 
     <target name="deleteJavaccClasses">
         <delete file="${src}/yapl/compiler/Parser.java"/>
@@ -172,7 +170,7 @@
     </target>
 
 
-    <target name="compile-java" depends="init, javaccCompile, compile-ant-task"
+    <target name="compile-java" depends="init, javacc, compile-ant-task"
             description="compiles the YAPL compiler">
         <javac srcdir="${src}" destdir="${build}" includeantruntime="true"/>
     </target>
@@ -182,14 +180,10 @@
     </target>
 
 
-<!--    <target name="run" depends="deleteJavaccClasses, javaccCompile, compile-java">-->
-    <target name="run" depends="deleteJavaccClasses, compile-java">
-<!--        <java classname="yapl.compiler.Parser" classpath="${build}" output="${log}">-->
-<!--            <arg value="${yapl}"/>-->
-<!--        </java>-->
-                <java classname="yapl.symbol.Symbolchecker" classpath="${build}" output="${log}">
-                    <arg value="${yapl}"/>
-                </java>
+    <target name="run" depends="deleteJavaccClasses, javacc, compile-java">
+        <java classname="yapl.compiler.Parser" classpath="${build}" output="${log}">
+            <arg value="${yapl}"/>
+        </java>
     </target>
 
 

@@ -47,6 +47,8 @@ public class Symbol implements yapl.interfaces.Symbol {
                 return "Field";
             case 6:
                 return "Parameter";
+            case 7:
+                return "Predefined Procedure";
             default:
                 return null;
         }
