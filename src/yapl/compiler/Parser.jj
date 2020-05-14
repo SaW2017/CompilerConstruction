@@ -1,6 +1,6 @@
 options {
     LOOKAHEAD = 2;
-    DEBUG_TOKEN_MANAGER = true;
+    DEBUG_TOKEN_MANAGER = false;
 }
 
 PARSER_BEGIN(Parser)

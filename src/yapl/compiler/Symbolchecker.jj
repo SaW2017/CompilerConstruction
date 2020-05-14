@@ -1,17 +1,18 @@
 options {
     LOOKAHEAD = 2;
-    DEBUG_TOKEN_MANAGER = true;
+    DEBUG_TOKEN_MANAGER = false;
 }
 
-PARSER_BEGIN(Parser)
+PARSER_BEGIN(Symbolchecker)
 package yapl.compiler;
 import yapl.interfaces.CompilerError;
-import yapl.lib.CompilerMessage;import yapl.symbol.Symboltable;
+import yapl.lib.CompilerMessage;
+import yapl.symbol.Symboltable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 /** CA2.3 */
-public class Parser {
+public class Symbolchecker {
 
     private static String programName = "";
     private static Symboltable symboltable = new Symboltable();
@@ -24,8 +25,8 @@ public class Parser {
             return;
         }
         try{
-            Parser parser = new Parser(new FileInputStream(args[0]));
-            parser.Program();
+            Symbolchecker symbolchecker = new Symbolchecker(new FileInputStream(args[0]));
+            symbolchecker.Program();
             CompilerMessage.printOK(programName);
         } catch (ParseException e) {
             CompilerMessage.printError(e, programName);
@@ -35,10 +36,9 @@ public class Parser {
             e.printStackTrace();
         }
    }
-}}
 }
 
-PARSER_END(Parser)
+PARSER_END(Symbolchecker)
 
 
 SKIP :
