@@ -1,5 +1,5 @@
 options {
-    LOOKAHEAD = 2;
+    LOOKAHEAD = 1;
     DEBUG_TOKEN_MANAGER = false;
 }
 
@@ -262,7 +262,7 @@ void Statement() throws YAPLException:
 {
 }
 {
-    IfStatement() | WhileStatement() | ReturnStatement() | WriteStatement() | Assignment() | ProcedureCall() | Block()
+    IfStatement() | WhileStatement() | ReturnStatement() | WriteStatement() | LOOKAHEAD(2) Assignment() | LOOKAHEAD(2) ProcedureCall() | Block()
 }
 
 void WriteStatement() throws YAPLException:
@@ -406,19 +406,23 @@ void PrimaryExpr() throws YAPLException:
   Token t;
 }
 {
-    Literal() | "(" Expr() ")" | ProcedureCall() | t = <ident> (Selector())?
+    Literal() | "(" Expr() ")" | LOOKAHEAD (2) ProcedureCall() | t = <ident>
+
     {
 
-            Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
+                Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
 
-            Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
-            if(checkedSymbol == null) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);
-            System.out.println("Symbol to check: " + t.image + " of kind: " + t.kind);
-            System.out.println("Checked symbol: " + checkedSymbol.getName());
-            if(checkedSymbol.getKindString() != null){
-                if(!(checkedSymbol.getKind() == Symbol.Variable || checkedSymbol.getKind() == Symbol.Constant || checkedSymbol.getKind() == Symbol.Parameter)) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " '" + checkedSymbol.getName() + "'", CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
-            }
-    }
+                Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
+                if(checkedSymbol == null) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);
+                System.out.println("Symbol to check: " + t.image + " of kind: " + t.kind);
+                System.out.println("Checked symbol: " + checkedSymbol.getName());
+                if(checkedSymbol.getKindString() != null){
+                    if(!(checkedSymbol.getKind() == Symbol.Variable || checkedSymbol.getKind() == Symbol.Constant || checkedSymbol.getKind() == Symbol.Parameter)) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " '" + checkedSymbol.getName() + "'", CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
+                }
+        }
+
+    (Selector())?
+
 
     | ArrayLen()
 }

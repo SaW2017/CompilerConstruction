@@ -63,7 +63,7 @@
         </fail>
     </target>
 
-    <target name="eval-all" description="evaluate all test cases of a given compiler 'version'">
+    <target name="eval-all" description="evaluate all test cases of a given compiler 'version'" depends="deleteJavaccClasses, javacc, compile-java">
         <echo>##############################</echo>
         <echo>### HAPPY BIRTHDAY, KLAUS! ###</echo>
         <echo>##############################</echo>
@@ -76,7 +76,7 @@
             <sequential>
                 <trycatch>
                     <try>
-                        <antcall target="eval-compiler-msg">
+                      <antcall target="eval-compiler-msg">
                             <param name="yapl" value="@{yapl}"/>
                             <param name="log" value="@{yapl}.log"/>
                         </antcall>
@@ -180,7 +180,7 @@
     </target>
 
 
-    <target name="run" depends="deleteJavaccClasses, javacc, compile-java">
+    <target name="run" ><!--depends="deleteJavaccClasses, javacc, compile-java"-->
         <java classname="yapl.compiler.Parser" classpath="${build}" output="${log}">
             <arg value="${yapl}"/>
         </java>
