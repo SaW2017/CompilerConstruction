@@ -17,6 +17,7 @@ public class Parser {
 
     private static String programName = "";
     private static Symboltable symboltable = new Symboltable();
+    private static CodeGen cg = new CodeGen();
 
   /** Main entry point. */
   public static void main(String args[]) {
@@ -42,6 +43,21 @@ public class Parser {
 }
 
 PARSER_END(Parser)
+
+/*
+#################################
+###### TYPE CHECKING ORDER ######
+#################################
+
+1) Expressions
+2) Assignments
+3) Procedure Declarations
+4) Procedure Calls
+5) Other Statements
+
+
+
+ */
 
 
 SKIP :
@@ -133,11 +149,13 @@ void ConstDecl() throws YAPLException:
 void VarDecl() throws YAPLException:
 {
     Token t, u;
+    Type type;
 }
 {
-    Type() t = <ident>
+    type = Type() t = <ident>
     {
                                    Symbol s = new Symbol(Symbol.Variable, t.image, t.beginLine, t.beginColumn);
+                                   s.setType(type);
                                    Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
                                    if(checkedSymbol != null) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);
                                    symboltable.addSymbol((yapl.symbol.Symbol)s);
@@ -174,12 +192,15 @@ void TypeDecl() throws YAPLException:
 
 //________________TYPEs_____________
 
-void NonArrayType() throws YAPLException:
+Type NonArrayType() throws YAPLException:
 {
        Token t;
 }
 {
-    "int" | "bool" |
+    "int" {
+                return new IntegerType();
+        } |
+ "bool" {return new BooleanType();} |
     t = <ident> {
 
                                              Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
@@ -191,21 +212,25 @@ void NonArrayType() throws YAPLException:
                                                       if(checkedSymbol.getKind() != Symbol.Typename) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
                                                   }
                                               }symboltable.addSymbol(s);}
+                     {return new RecordType(t.image);}
 }
 
 
-void Type() throws YAPLException:
+Type Type() throws YAPLException:
 {
+       Type type;
 }
 {
-    NonArrayType() ("[""]")*
+    type = NonArrayType() ("[""]")*
+    {return type;}
 }
 
-void ReturnType() throws YAPLException:
+Type ReturnType() throws YAPLException:
 {
+    Type type;
 }
 {
-    "void" | Type()
+    "void" {return new VoidType();} | type = Type() {return type;}
 }
 //________________END OF TYPEs________
 
@@ -240,12 +265,14 @@ void FormalParamList() throws YAPLException:
 void FormalParam() throws YAPLException:
 {
     Token t;
+    Type type;
 }
 {
-    Type() t = <ident>
+    type = Type() t = <ident>
     {
                 Symbol s = new Symbol(Symbol.Parameter, t.image, t.beginLine, t.beginColumn);
-                            symboltable.addSymbol((yapl.symbol.Symbol)s);        }
+                s.setType(type);
+                symboltable.addSymbol((yapl.symbol.Symbol)s);        }
 }
 //________________END OF PROCEDUREs____
 
@@ -344,69 +371,122 @@ void Block() throws YAPLException:
 
 //_______________EXPRESSIONs________
 
-void Expr() throws YAPLException:
+Attrib Expr() throws YAPLException:
 {
 }
 {
     CondAndExpr() ("Or" CondAndExpr())* | CreationExpr()
+    {
+        return new Attrib();
+    }
 }
 
-void CreationExpr() throws YAPLException:
+Attrib CreationExpr() throws YAPLException:
 {
+        Type type;
 }
 {
-    "new" NonArrayType() ("[" Expr() "]")*
-}
-
-void CondAndExpr() throws YAPLException:
-{
-}
-{
-    EqualExpr() ("And" EqualExpr())*
+    "new" type = NonArrayType() ("[" Expr() "]")*
+    {return new Attrib();}
 }
 
-void EqualExpr() throws YAPLException:
+Attrib CondAndExpr() throws YAPLException:
 {
+    Attrib expr1, expr2;
+    Token operator;
 }
 {
-    RelExpr() (EqualOp() RelExpr())?
+    expr1 = EqualExpr() ("And" expr2 = EqualExpr()
+    {
+        operator = new Token();
+        operator.image = "And";
+        return cg.op2(expr1, token, expr2);
+    }
+    )*
+
+    {return expr1;}
 }
 
-void RelExpr() throws YAPLException:
+Attrib EqualExpr() throws YAPLException:
 {
+    Attrib expr1, expr2;
+    Token operator;
 }
 {
-    AddExpr() (RelOp() AddExpr())?
+    expr1 = RelExpr() (operator = EqualOp() expr2 = RelExpr()
+    {
+        return cg.equalOp(expr1, operator, expr2);
+    }
+    )?
+
+    {return expr1;}
 }
 
-void AddExpr() throws YAPLException:
+Attrib RelExpr() throws YAPLException:
 {
+    Attrib expr1, expr2;
+    Token operator;
 }
 {
-    MulExpr() (AddOp() MulExpr())*
+    expr1 = AddExpr() (operator = RelOp() expr2 = AddExpr()
+    {
+        return cg.relOp(expr1, operator, expr2);
+    }
+    )?
+
+    {return expr1;}
+}
+
+Attrib AddExpr() throws YAPLException:
+{
+    Attrib expr1, expr2;
+    Token operator;
+}
+{
+    expr1 = MulExpr() (operator = AddOp() expr2 = MulExpr()
+    {
+        return cg.op2(expr1, operator, expr2);
+    }
+    )*
+
+    {return expr1;}
 }
 
 
-void MulExpr() throws YAPLException:
+Attrib MulExpr() throws YAPLException:
 {
+    Attrib expr1, expr2;
+    Token operator;
 }
 {
-    UnaryExpr() (MulOp() UnaryExpr())*
+    expr1 = UnaryExpr() (operator = MulOp() expr2 = UnaryExpr()
+    {
+        return cg.op2(expr1, operator, expr2);
+    }
+    )*
+
+    {return expr1;}
 }
 
-void UnaryExpr() throws YAPLException:
+Attrib UnaryExpr() throws YAPLException:
 {
+   Attrib expr;
+   Token operator = null;
 }
 {
-    (AddOp())? PrimaryExpr()
+    (operator = AddOp())? expr = PrimaryExpr()
+    {
+        return cg.op1(operator, expr);
+    }
 }
 
-void PrimaryExpr() throws YAPLException:
+Attrib PrimaryExpr() throws YAPLException:
 {
   Token t;
+  Attrib attrib = null;
 }
 {
-    Literal() | "(" Expr() ")" | LOOKAHEAD (2) ProcedureCall() | t = <ident>
+    attrib = Literal() {return attrib;} | "(" attrib = Expr() {return attrib;} ")" | LOOKAHEAD (2) ProcedureCall() | t = <ident>
 
     {
 
@@ -421,10 +501,10 @@ void PrimaryExpr() throws YAPLException:
                 }
         }
 
-    (Selector())?
-
-
-    | ArrayLen()
+    (Selector())? | ArrayLen()
+    {
+        return attrib;
+    }
 }
 
 void ArrayLen() throws YAPLException:
@@ -436,6 +516,7 @@ Token t;
     {
 
                 Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
+                System.out.println("Kind: " + t.kind);
                 Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
                 if(checkedSymbol == null) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);
                 if(checkedSymbol.getKind() == (Symbol.Constant) || checkedSymbol.getKind() == (Symbol.Procedure)) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
@@ -449,41 +530,58 @@ void Selector() throws YAPLException:
     ( "[" Expr()  "]" | "." <ident> ) (Selector())?
 }
 
-void Literal() throws YAPLException:
+Attrib Literal() throws YAPLException:
 {
+       Attrib attrib;
 }
 {
-    "True" | "False" | <number>
+    "True" {return new Attrib(new BooleanType());} | "False" {return new Attrib(new BooleanType());} | <number> {return new Attrib(new IntegerType());}
 }
 //_______________END OF EXPRESSIONs____
 
 //__________________OPs_______________
-void RelOp() throws YAPLException:
+Token RelOp() throws YAPLException:
 {
+            Token token;
 }
 {
-    "<" | "<=" | ">=" | ">"
-}
-
-void EqualOp() throws YAPLException:
-{
-}
-{
-    "==" | "!="
+    token = "<" | token = "<=" | token = ">=" | token = ">"
+    {
+            return token;
+        }
 }
 
-void AddOp() throws YAPLException:
+Token EqualOp() throws YAPLException:
 {
+    Token token;
 }
 {
-    "+" | "-"
+    token = "==" | token = "!="
+    {
+        return token;
+    }
 }
 
-void MulOp() throws YAPLException:
+Token AddOp() throws YAPLException:
 {
+            Token token;
 }
 {
-    "*" | "/" | "%"
+    token = "+" | token = "-"
+    {
+            return token;
+        }
+}
+
+Token MulOp() throws YAPLException:
+{
+            Token token;
+}
+{
+    token = "*" | token = "/" | token = "%"
+    {
+            return token;
+        }
 }
 //________________END OF OPs___________
 

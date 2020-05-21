@@ -1,138 +1,158 @@
 package yapl.compiler;
 
-import yapl.interfaces.Attrib;
+import yapl.compiler.Attrib;
+import yapl.interfaces.CompilerError;
 import yapl.interfaces.Symbol;
-import yapl.lib.ArrayType;
-import yapl.lib.RecordType;
-import yapl.lib.YAPLException;
+import yapl.lib.*;
 
-public class CodeGen implements yapl.interfaces.CodeGen {
-    @Override
-    public String newLabel() {
-        return null;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+public class CodeGen {
+
+    String label;
+
+    public CodeGen() {
     }
-
-    @Override
+    
+    public String newLabel() {
+        return UUID.randomUUID().toString();
+    }
+    
     public void assignLabel(String label) {
 
     }
 
-    @Override
     public byte loadValue(Attrib attr) throws YAPLException {
         return 0;
     }
-
-    @Override
+    
     public byte loadAddress(Attrib attr) throws YAPLException {
         return 0;
     }
-
-    @Override
+    
     public void freeReg(Attrib attr) {
 
     }
-
-    @Override
+    
     public void allocVariable(Symbol sym) throws YAPLException {
 
     }
 
-    @Override
+    
     public void setFieldOffsets(RecordType record) {
 
     }
 
-    @Override
+    
     public void storeArrayDim(int dim, Attrib length) throws YAPLException {
 
     }
 
-    @Override
+    
     public Attrib allocArray(ArrayType arrayType) throws YAPLException {
         return null;
     }
 
-    @Override
+    
     public Attrib allocRecord(RecordType recordType) throws YAPLException {
         return null;
     }
 
-    @Override
+    
     public void setParamOffset(Symbol sym, int pos) {
 
     }
 
-    @Override
+    
     public void arrayOffset(Attrib arr, Attrib index) throws YAPLException {
 
     }
 
-    @Override
+    
     public void recordOffset(Attrib record, Symbol field) throws YAPLException {
 
     }
 
-    @Override
+    
     public Attrib arrayLength(Attrib arr) throws YAPLException {
         return null;
     }
 
-    @Override
+    
     public void assign(Attrib lvalue, Attrib expr) throws YAPLException {
 
     }
 
-    @Override
+    
     public Attrib op1(Token op, Attrib x) throws YAPLException {
-        return null;
+        if(op == null) return x;
+        if(!(op.image.equals("+") || op.image.equals("-"))) throw new YAPLException("Internal error.", CompilerError.Internal, op.beginLine, op.beginColumn);
+        if(!(x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for unary operator.", CompilerError.IllegalOp1Type);
+
+        return x;
     }
 
-    @Override
+    
     public Attrib op2(Attrib x, Token op, Attrib y) throws YAPLException {
-        return null;
+        //TODO: Check for valid binary operator;
+        if(x.getType() != y.getType()) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type);
+        if(op.image.equals("And") || op.image.equals("Or")){
+            if(!(x.getType() instanceof BooleanType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type);
+        }
+        return x;
     }
 
-    @Override
+    
     public Attrib relOp(Attrib x, Token op, Attrib y) throws YAPLException {
-        return null;
+        //"<" | "<=" | ">=" | ">"
+        if(!(op.image.equals("<") || op.image.equals("<=") || op.image.equals(">=") || op.image.equals(">"))) throw new YAPLException("Illegal operand type for relational operator.", CompilerError.Internal);
+        if(!(x.getType() instanceof IntegerType && y.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type);
+
+        return x;
     }
 
-    @Override
+    
     public Attrib equalOp(Attrib x, Token op, Attrib y) throws YAPLException {
-        return null;
+        if(!(x.getType() != y.getType())) throw new YAPLException("Illegal operand type for equality operator.", CompilerError.IllegalEqualOpType);
+        if(!(x.getType() instanceof BooleanType || x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for equality operator.", CompilerError.IllegalEqualOpType);
+
+        return new yapl.compiler.Attrib(new BooleanType());
     }
 
-    @Override
+    
     public void enterProc(Symbol proc) throws YAPLException {
 
     }
 
-    @Override
+    
     public void exitProc(Symbol proc) throws YAPLException {
 
     }
 
-    @Override
+    
     public void returnFromProc(Symbol proc, Attrib returnVal) throws YAPLException {
 
     }
 
-    @Override
+    
     public Attrib callProc(Symbol proc, Attrib[] args) throws YAPLException {
         return null;
     }
 
-    @Override
+    
     public void writeString(String string) throws YAPLException {
 
     }
 
-    @Override
+    
     public void branchIfFalse(Attrib condition, String label) throws YAPLException {
 
     }
 
-    @Override
+    
     public void jump(String label) {
 
     }

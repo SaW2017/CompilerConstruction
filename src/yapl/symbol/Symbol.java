@@ -25,12 +25,12 @@ public class Symbol implements yapl.interfaces.Symbol {
     private int column;
 
 
-    @Override
+
     public int getKind() {
         return this.kind;
     }
 
-    @Override
+
     public String getKindString() {
         switch (kind) {
             case 0:
@@ -54,12 +54,12 @@ public class Symbol implements yapl.interfaces.Symbol {
         }
     }
 
-    @Override
+
     public void setKind(int kind) {
         this.kind = kind;
     }
 
-    @Override
+
     public String getName() {
         return name;
     }

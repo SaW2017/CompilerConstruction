@@ -12,6 +12,7 @@ public class Parser implements ParserConstants {
 
     private static String programName = "";
     private static Symboltable symboltable = new Symboltable();
+    private static CodeGen cg = new CodeGen();
 
   /** Main entry point. */
   public static void main(String args[]) {
@@ -153,9 +154,11 @@ public class Parser implements ParserConstants {
 
   static final public void VarDecl() throws ParseException, YAPLException {
     Token t, u;
-    Type();
+    Type type;
+    type = Type();
     t = jj_consume_token(ident);
                                    Symbol s = new Symbol(Symbol.Variable, t.image, t.beginLine, t.beginColumn);
+                                   s.setType(type);
                                    Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
                                    if(checkedSymbol != null) {if (true) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);}
                                    symboltable.addSymbol((yapl.symbol.Symbol)s);
@@ -214,14 +217,16 @@ public class Parser implements ParserConstants {
 //________________END OF DECs___________
 
 //________________TYPEs_____________
-  static final public void NonArrayType() throws ParseException, YAPLException {
+  static final public Type NonArrayType() throws ParseException, YAPLException {
        Token t;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 17:
       jj_consume_token(17);
+                {if (true) return new IntegerType();}
       break;
     case 18:
       jj_consume_token(18);
+         {if (true) return new BooleanType();}
       break;
     case ident:
       t = jj_consume_token(ident);
@@ -234,16 +239,19 @@ public class Parser implements ParserConstants {
                                                       if(checkedSymbol.getKind() != Symbol.Typename) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
                                                   }
                                               }symboltable.addSymbol(s);
+                      {if (true) return new RecordType(t.image);}
       break;
     default:
       jj_la1[6] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void Type() throws ParseException, YAPLException {
-    NonArrayType();
+  static final public Type Type() throws ParseException, YAPLException {
+       Type type;
+    type = NonArrayType();
     label_5:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -257,23 +265,29 @@ public class Parser implements ParserConstants {
       jj_consume_token(19);
       jj_consume_token(20);
     }
+     {if (true) return type;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void ReturnType() throws ParseException, YAPLException {
+  static final public Type ReturnType() throws ParseException, YAPLException {
+    Type type;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 21:
       jj_consume_token(21);
+            {if (true) return new VoidType();}
       break;
     case 17:
     case 18:
     case ident:
-      Type();
+      type = Type();
+                                                     {if (true) return type;}
       break;
     default:
       jj_la1[8] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
   }
 
 //________________END OF TYPEs________
@@ -327,10 +341,12 @@ public class Parser implements ParserConstants {
 
   static final public void FormalParam() throws ParseException, YAPLException {
     Token t;
-    Type();
+    Type type;
+    type = Type();
     t = jj_consume_token(ident);
                 Symbol s = new Symbol(Symbol.Parameter, t.image, t.beginLine, t.beginColumn);
-                            symboltable.addSymbol((yapl.symbol.Symbol)s);
+                s.setType(type);
+                symboltable.addSymbol((yapl.symbol.Symbol)s);
   }
 
 //________________END OF PROCEDUREs____
@@ -531,7 +547,7 @@ public class Parser implements ParserConstants {
 //________________END OF STATEMENTs_____
 
 //_______________EXPRESSIONs________
-  static final public void Expr() throws ParseException, YAPLException {
+  static final public Attrib Expr() throws ParseException, YAPLException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 23:
     case 38:
@@ -558,17 +574,20 @@ public class Parser implements ParserConstants {
       break;
     case 36:
       CreationExpr();
+        {if (true) return new Attrib();}
       break;
     default:
       jj_la1[21] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void CreationExpr() throws ParseException, YAPLException {
+  static final public Attrib CreationExpr() throws ParseException, YAPLException {
+        Type type;
     jj_consume_token(36);
-    NonArrayType();
+    type = NonArrayType();
     label_10:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -583,10 +602,14 @@ public class Parser implements ParserConstants {
       Expr();
       jj_consume_token(20);
     }
+     {if (true) return new Attrib();}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void CondAndExpr() throws ParseException, YAPLException {
-    EqualExpr();
+  static final public Attrib CondAndExpr() throws ParseException, YAPLException {
+    Attrib expr1, expr2;
+    Token operator;
+    expr1 = EqualExpr();
     label_11:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -598,42 +621,59 @@ public class Parser implements ParserConstants {
         break label_11;
       }
       jj_consume_token(37);
-      EqualExpr();
+      expr2 = EqualExpr();
+        operator = new Token();
+        operator.image = "And";
+        {if (true) return cg.op2(expr1, token, expr2);}
     }
+     {if (true) return expr1;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void EqualExpr() throws ParseException, YAPLException {
-    RelExpr();
+  static final public Attrib EqualExpr() throws ParseException, YAPLException {
+    Attrib expr1, expr2;
+    Token operator;
+    expr1 = RelExpr();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 45:
     case 46:
-      EqualOp();
-      RelExpr();
+      operator = EqualOp();
+      expr2 = RelExpr();
+        {if (true) return cg.equalOp(expr1, operator, expr2);}
       break;
     default:
       jj_la1[24] = jj_gen;
       ;
     }
+     {if (true) return expr1;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void RelExpr() throws ParseException, YAPLException {
-    AddExpr();
+  static final public Attrib RelExpr() throws ParseException, YAPLException {
+    Attrib expr1, expr2;
+    Token operator;
+    expr1 = AddExpr();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 41:
     case 42:
     case 43:
     case 44:
-      RelOp();
-      AddExpr();
+      operator = RelOp();
+      expr2 = AddExpr();
+        {if (true) return cg.relOp(expr1, operator, expr2);}
       break;
     default:
       jj_la1[25] = jj_gen;
       ;
     }
+     {if (true) return expr1;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void AddExpr() throws ParseException, YAPLException {
-    MulExpr();
+  static final public Attrib AddExpr() throws ParseException, YAPLException {
+    Attrib expr1, expr2;
+    Token operator;
+    expr1 = MulExpr();
     label_12:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -645,13 +685,18 @@ public class Parser implements ParserConstants {
         jj_la1[26] = jj_gen;
         break label_12;
       }
-      AddOp();
-      MulExpr();
+      operator = AddOp();
+      expr2 = MulExpr();
+        {if (true) return cg.op2(expr1, operator, expr2);}
     }
+     {if (true) return expr1;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void MulExpr() throws ParseException, YAPLException {
-    UnaryExpr();
+  static final public Attrib MulExpr() throws ParseException, YAPLException {
+    Attrib expr1, expr2;
+    Token operator;
+    expr1 = UnaryExpr();
     label_13:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -664,35 +709,45 @@ public class Parser implements ParserConstants {
         jj_la1[27] = jj_gen;
         break label_13;
       }
-      MulOp();
-      UnaryExpr();
+      operator = MulOp();
+      expr2 = UnaryExpr();
+        {if (true) return cg.op2(expr1, operator, expr2);}
     }
+     {if (true) return expr1;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void UnaryExpr() throws ParseException, YAPLException {
+  static final public Attrib UnaryExpr() throws ParseException, YAPLException {
+   Attrib expr;
+   Token operator = null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 47:
     case 48:
-      AddOp();
+      operator = AddOp();
       break;
     default:
       jj_la1[28] = jj_gen;
       ;
     }
-    PrimaryExpr();
+    expr = PrimaryExpr();
+        {if (true) return cg.op1(operator, expr);}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void PrimaryExpr() throws ParseException, YAPLException {
+  static final public Attrib PrimaryExpr() throws ParseException, YAPLException {
   Token t;
+  Attrib attrib = null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 39:
     case 40:
     case number:
-      Literal();
+      attrib = Literal();
+                        {if (true) return attrib;}
       break;
     case 23:
       jj_consume_token(23);
-      Expr();
+      attrib = Expr();
+                                                               {if (true) return attrib;}
       jj_consume_token(24);
       break;
     default:
@@ -724,6 +779,7 @@ public class Parser implements ParserConstants {
           break;
         case 38:
           ArrayLen();
+        {if (true) return attrib;}
           break;
         default:
           jj_la1[31] = jj_gen;
@@ -732,6 +788,7 @@ public class Parser implements ParserConstants {
         }
       }
     }
+    throw new Error("Missing return statement in function");
   }
 
   static final public void ArrayLen() throws ParseException, YAPLException {
@@ -748,6 +805,7 @@ Token t;
       ;
     }
                 Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
+                System.out.println("Kind: " + t.kind);
                 Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
                 if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);}
                 if(checkedSymbol.getKind() == (Symbol.Constant) || checkedSymbol.getKind() == (Symbol.Procedure)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
@@ -780,94 +838,111 @@ Token t;
     }
   }
 
-  static final public void Literal() throws ParseException, YAPLException {
+  static final public Attrib Literal() throws ParseException, YAPLException {
+       Attrib attrib;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 39:
       jj_consume_token(39);
+            {if (true) return new Attrib(new BooleanType());}
       break;
     case 40:
       jj_consume_token(40);
+                                                              {if (true) return new Attrib(new BooleanType());}
       break;
     case number:
       jj_consume_token(number);
+                                                                                                                 {if (true) return new Attrib(new IntegerType());}
       break;
     default:
       jj_la1[35] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
   }
 
 //_______________END OF EXPRESSIONs____
 
 //__________________OPs_______________
-  static final public void RelOp() throws ParseException, YAPLException {
+  static final public Token RelOp() throws ParseException, YAPLException {
+            Token token;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 41:
-      jj_consume_token(41);
+      token = jj_consume_token(41);
       break;
     case 42:
-      jj_consume_token(42);
+      token = jj_consume_token(42);
       break;
     case 43:
-      jj_consume_token(43);
+      token = jj_consume_token(43);
       break;
     case 44:
-      jj_consume_token(44);
+      token = jj_consume_token(44);
+            {if (true) return token;}
       break;
     default:
       jj_la1[36] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void EqualOp() throws ParseException, YAPLException {
+  static final public Token EqualOp() throws ParseException, YAPLException {
+    Token token;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 45:
-      jj_consume_token(45);
+      token = jj_consume_token(45);
       break;
     case 46:
-      jj_consume_token(46);
+      token = jj_consume_token(46);
+        {if (true) return token;}
       break;
     default:
       jj_la1[37] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void AddOp() throws ParseException, YAPLException {
+  static final public Token AddOp() throws ParseException, YAPLException {
+            Token token;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 47:
-      jj_consume_token(47);
+      token = jj_consume_token(47);
       break;
     case 48:
-      jj_consume_token(48);
+      token = jj_consume_token(48);
+            {if (true) return token;}
       break;
     default:
       jj_la1[38] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void MulOp() throws ParseException, YAPLException {
+  static final public Token MulOp() throws ParseException, YAPLException {
+            Token token;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 49:
-      jj_consume_token(49);
+      token = jj_consume_token(49);
       break;
     case 50:
-      jj_consume_token(50);
+      token = jj_consume_token(50);
       break;
     case 51:
-      jj_consume_token(51);
+      token = jj_consume_token(51);
+            {if (true) return token;}
       break;
     default:
       jj_la1[39] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
   }
 
   static private boolean jj_2_1(int xla) {
@@ -891,41 +966,6 @@ Token t;
     finally { jj_save(2, xla); }
   }
 
-  static private boolean jj_3_1() {
-    if (jj_3R_14()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_18() {
-    if (jj_scan_token(19)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_16() {
-    if (jj_3R_17()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_17() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_18()) {
-    jj_scanpos = xsp;
-    if (jj_3R_19()) return true;
-    }
-    return false;
-  }
-
-  static private boolean jj_3R_19() {
-    if (jj_scan_token(9)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_3() {
-    if (jj_3R_15()) return true;
-    return false;
-  }
-
   static private boolean jj_3R_14() {
     if (jj_scan_token(ident)) return true;
     Token xsp;
@@ -940,9 +980,44 @@ Token t;
     return false;
   }
 
+  static private boolean jj_3R_18() {
+    if (jj_scan_token(19)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_17() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_18()) {
+    jj_scanpos = xsp;
+    if (jj_3R_19()) return true;
+    }
+    return false;
+  }
+
   static private boolean jj_3R_15() {
     if (jj_scan_token(ident)) return true;
     if (jj_scan_token(23)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_19() {
+    if (jj_scan_token(9)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_1() {
+    if (jj_3R_14()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_3() {
+    if (jj_3R_15()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_16() {
+    if (jj_3R_17()) return true;
     return false;
   }
 
