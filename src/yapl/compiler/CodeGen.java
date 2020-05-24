@@ -109,7 +109,7 @@ public class CodeGen {
     public Attrib relOp(Attrib x, Token op, Attrib y) throws YAPLException {
         //"<" | "<=" | ">=" | ">"
         if(!(op.image.equals("<") || op.image.equals("<=") || op.image.equals(">=") || op.image.equals(">"))) throw new YAPLException("Illegal operand type for relational operator.", CompilerError.Internal);
-        if(!(x.getType() instanceof IntegerType && y.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type);
+        if(!(x.getType() instanceof IntegerType && y.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalRelOpType);
 
         return x;
     }

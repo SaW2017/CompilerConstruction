@@ -4,6 +4,7 @@ import yapl.interfaces.CompilerError;
 import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import yapl.symbol.*;
 import yapl.lib.*;
 

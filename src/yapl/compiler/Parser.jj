@@ -8,7 +8,7 @@ package yapl.compiler;
 import yapl.interfaces.CompilerError;
 import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileNotFoundException;import java.lang.reflect.Array;
 import yapl.symbol.*;
 import yapl.lib.*;
 
@@ -133,17 +133,19 @@ void Decl() throws YAPLException:
 void ConstDecl() throws YAPLException:
 {
      Token t;
+     Attrib attrib;
 }
 {
-    "Const" t = <ident> "=" Literal() ";"
+    "Const" t = <ident> "=" attrib = Literal() ";"
     {
         Symbol s = new Symbol(Symbol.Constant, t.image, t.beginLine, t.beginColumn);
-                    Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
-                    if(checkedSymbol != null) {
-                                                throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);
-                    }
-                    symboltable.addSymbol((yapl.symbol.Symbol)s);
-                    }
+        s.setType(attrib.getType());
+        Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
+        if(checkedSymbol != null) {
+            throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);
+        }
+        symboltable.addSymbol((yapl.symbol.Symbol)s);
+        }
 }
 
 void VarDecl() throws YAPLException:
@@ -154,20 +156,21 @@ void VarDecl() throws YAPLException:
 {
     type = Type() t = <ident>
     {
-                                   Symbol s = new Symbol(Symbol.Variable, t.image, t.beginLine, t.beginColumn);
-                                   s.setType(type);
-                                   Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
-                                   if(checkedSymbol != null) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);
-                                   symboltable.addSymbol((yapl.symbol.Symbol)s);
-                                   //symbol 'k' already declared in current scope (as variable)
+        Symbol s = new Symbol(Symbol.Variable, t.image, t.beginLine, t.beginColumn);
+        s.setType(type);
+        Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
 
+        if(checkedSymbol != null) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);
+        symboltable.addSymbol((yapl.symbol.Symbol)s);
+
+        //symbol 'k' already declared in current scope (as variable)
     }
     ("," u = <ident>
     {
         Symbol v = new Symbol(Symbol.Variable, u.image, u.beginLine, u.beginColumn);
-                                Symbol checkedSymbol2 = (yapl.symbol.Symbol)symboltable.lookup(u.image, u.beginLine, u.beginColumn);
-                                if(checkedSymbol2 != null) throw new YAPLException("Identifier '" + u.image + "' already declared in current scope (as " + checkedSymbol2.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, u.beginLine, u.beginColumn);
-                                symboltable.addSymbol((yapl.symbol.Symbol)v);
+        Symbol checkedSymbol2 = (yapl.symbol.Symbol)symboltable.lookup(u.image, u.beginLine, u.beginColumn);
+        if(checkedSymbol2 != null) throw new YAPLException("Identifier '" + u.image + "' already declared in current scope (as " + checkedSymbol2.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, u.beginLine, u.beginColumn);
+        symboltable.addSymbol((yapl.symbol.Symbol)v);
     })* ";"
 }
 
@@ -178,13 +181,14 @@ void TypeDecl() throws YAPLException:
 {
     "Record" t = <ident>
      {
-                 Symbol s = new Symbol(Symbol.Typename, t.image, t.beginLine, t.beginColumn);
-                             Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
-                             if(checkedSymbol != null) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);
-                             System.out.println("Before adding symbol: " + s.getName());
-                             symboltable.addSymbol((yapl.symbol.Symbol)s);
-                             symboltable.openScope(false);
-         }
+         Symbol s = new Symbol(Symbol.Typename, t.image, t.beginLine, t.beginColumn);
+         s.setType(new RecordType(t.image));
+         Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
+         if(checkedSymbol != null) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);
+         System.out.println("Before adding symbol: " + s.getName());
+         symboltable.addSymbol((yapl.symbol.Symbol)s);
+         symboltable.openScope(false);
+     }
      VarDecl() (VarDecl())* "EndRecord" {symboltable.closeScope();} ";"
 
 }
@@ -237,12 +241,14 @@ Type ReturnType() throws YAPLException:
 //________________PROCEDUREs__________
 void Procedure() throws YAPLException:
 {
-            Token t, endIdent;
+    Token t, endIdent;
+    Type  type;
 }
 {
-    "Procedure" ReturnType() t = <ident>
+    "Procedure" type = ReturnType() t = <ident>
     {
         Symbol s = new Symbol(Symbol.Procedure, t.image, t.beginLine, t.beginColumn);
+        s.setType(type);
         symboltable.addSymbol(s);
         symboltable.setParentSymbol(s);
         symboltable.openScope(false);
@@ -323,9 +329,10 @@ void IfStatement() throws YAPLException:
 void Assignment() throws YAPLException:
 {
     Token t;
+    Attrib attrib;
 }
 {
-   t = <ident> (Selector())? ":=" Expr()
+   t = <ident>
    {
         Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
         Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
@@ -334,9 +341,22 @@ void Assignment() throws YAPLException:
         if(checkedSymbol.getKind() == (Symbol.Constant)) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
         symboltable.addSymbol(s);
    }
+   {
+        Attrib retAttrib = new Attrib();
+        retAttrib.setType(checkedSymbol.getType());
+    }
+   (Selector(retAttrib))? ":=" attrib = Expr()
+   {
+
+        System.out.println(attrib.getType().getClass() + ", " + checkedSymbol.getType().getClass());
+        if(attrib.getType() instanceof VoidType) throw new YAPLException("using procedure proc (not a function) in expression", CompilerError.ProcNotFuncExpr);
+        if(checkedSymbol.getType() != attrib.getType()){
+            
+        }
+   }
 }
 
-void ProcedureCall() throws YAPLException:
+Attrib ProcedureCall() throws YAPLException:
 {
     Token t;
 }
@@ -349,7 +369,15 @@ void ProcedureCall() throws YAPLException:
             if(checkedSymbol == null) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);
             if(!(checkedSymbol.getKind() == Symbol.Procedure || checkedSymbol.getKind() == Symbol.PredefinedProcedure)) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
             //symboltable.addSymbol(s);
-       }
+    }
+    //TYPECHECKING
+    {
+        Attrib attrib = new Attrib();
+        attrib.setKind((byte)s.getKind());
+        //Set type of procedure declaration for comparison when assigning
+        attrib.setType(checkedSymbol.getType());
+        return attrib;
+    }
 }
 
 void ArgumentList() throws YAPLException:
@@ -373,21 +401,43 @@ void Block() throws YAPLException:
 
 Attrib Expr() throws YAPLException:
 {
+    Attrib expr1, expr2;
+    Token operator;
 }
 {
-    CondAndExpr() ("Or" CondAndExpr())* | CreationExpr()
+    (expr1 = CondAndExpr() ("Or" expr2 = CondAndExpr()
     {
-        return new Attrib();
+        operator = new Token();
+        operator.image = "Or";
+        return cg.op2(expr1, token, expr2);
+    }
+    )* | expr1 = CreationExpr())
+    {
+        return expr1;
     }
 }
 
 Attrib CreationExpr() throws YAPLException:
 {
-        Type type;
+    Attrib attrib;
+    Type type;
+    int arrayLength = 0;
 }
 {
-    "new" type = NonArrayType() ("[" Expr() "]")*
-    {return new Attrib();}
+    "new" type = NonArrayType() ("[" Expr() "]" {arrayLength++;})*
+    {
+    attrib = new Attrib();
+    //Set alternative type if array
+    if(arrayLength > 0){
+        ArrayType t = new ArrayType();
+        t.setArrayType(type);
+        t.setLength(arrayLength);
+        attrib.setType(t);
+    }else{
+        attrib.setType(type);
+    }
+    return attrib;
+}
 }
 
 Attrib CondAndExpr() throws YAPLException:
@@ -413,13 +463,14 @@ Attrib EqualExpr() throws YAPLException:
     Token operator;
 }
 {
-    expr1 = RelExpr() (operator = EqualOp() expr2 = RelExpr()
+    (expr1 = RelExpr() (operator = EqualOp() expr2 = RelExpr()
     {
         return cg.equalOp(expr1, operator, expr2);
     }
-    )?
-
-    {return expr1;}
+    )?)
+    {
+        return expr1;
+    }
 }
 
 Attrib RelExpr() throws YAPLException:
@@ -483,28 +534,44 @@ Attrib UnaryExpr() throws YAPLException:
 Attrib PrimaryExpr() throws YAPLException:
 {
   Token t;
-  Attrib attrib = null;
+  Attrib attrib = null, selAttrib = null;
 }
 {
-    attrib = Literal() {return attrib;} | "(" attrib = Expr() {return attrib;} ")" | LOOKAHEAD (2) ProcedureCall() | t = <ident>
+    attrib = Literal() {return attrib;} | "(" attrib = Expr() ")" {return attrib;} |  LOOKAHEAD (2) (attrib =  ProcedureCall()) {return attrib;} | t = <ident>
 
     {
+        Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
 
-                Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
-
-                Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
-                if(checkedSymbol == null) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);
-                System.out.println("Symbol to check: " + t.image + " of kind: " + t.kind);
-                System.out.println("Checked symbol: " + checkedSymbol.getName());
-                if(checkedSymbol.getKindString() != null){
-                    if(!(checkedSymbol.getKind() == Symbol.Variable || checkedSymbol.getKind() == Symbol.Constant || checkedSymbol.getKind() == Symbol.Parameter)) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " '" + checkedSymbol.getName() + "'", CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
-                }
+        Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
+        if(checkedSymbol == null) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);
+        System.out.println("Symbol to check: " + t.image + " of kind: " + t.kind);
+        System.out.println("Checked symbol: " + checkedSymbol.getName());
+        if(checkedSymbol.getKindString() != null){
+            if(!(checkedSymbol.getKind() == Symbol.Variable || checkedSymbol.getKind() == Symbol.Constant || checkedSymbol.getKind() == Symbol.Parameter)) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " '" + checkedSymbol.getName() + "'", CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
         }
-
-    (Selector())? | ArrayLen()
-    {
-        return attrib;
     }
+    {
+        Attrib retAttrib = new Attrib();
+        Type t = checkedSymbol.getType();
+        if(t instanceof ArrayType) {
+            t = new ArrayType();
+            ((ArrayType)t).setDeclSymbol(checkedSymbol);
+        }
+        retAttrib.setType(t);
+    }
+
+    (selAttrib = Selector(retAttrib))?
+
+    {
+        if(selAttrib != null){
+            Attrib a = new Attrib();
+            a.setType(selAttrib.getType());
+            retAttrib = a;
+        }
+        return retAttrib;
+    }
+
+    | ArrayLen() {return attrib;}
 }
 
 void ArrayLen() throws YAPLException:
@@ -512,22 +579,59 @@ void ArrayLen() throws YAPLException:
 Token t;
 }
 {
-    "#" t = <ident> (Selector())?
+    "#" t = <ident>
     {
-
-                Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
-                System.out.println("Kind: " + t.kind);
-                Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
-                if(checkedSymbol == null) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);
-                if(checkedSymbol.getKind() == (Symbol.Constant) || checkedSymbol.getKind() == (Symbol.Procedure)) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
-                }
+        Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
+        System.out.println("Kind: " + t.kind);
+        Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
+        if(checkedSymbol == null) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);
+        if(checkedSymbol.getKind() == (Symbol.Constant) || checkedSymbol.getKind() == (Symbol.Procedure)) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);
+    }
+    {
+        Attrib retAttrib = new Attrib();
+        retAttrib.setType(checkedSymbol.getType());
+    }
+    (Selector(retAttrib))?
 }
 
-void Selector() throws YAPLException:
+Attrib Selector(Attrib retAttrib) throws YAPLException:
 {
+    Attrib attrib, index, selector = null;
+    Token token = null;
 }
 {
-    ( "[" Expr()  "]" | "." <ident> ) (Selector())?
+    ( "[" index = Expr()  "]" | "." token = <ident> ) (selector = Selector(retAttrib))?
+    {
+        attrib = new Attrib();
+
+        if(token != null){
+            Symbol s = new Symbol(token.kind, token.image, token.beginLine, token.beginColumn);
+            Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(token.image, token.beginLine, token.beginColumn);
+            if(checkedSymbol == null) throw new YAPLException("identifier '" + token.image + "' not declared", CompilerError.IdentNotDecl, token.beginLine, token.beginColumn);
+
+            if(selector == null){
+                attrib.setType(checkedSymbol.getType());
+            }else{
+                ArrayType at = new ArrayType();
+                at.setLength(((ArrayType)selector.getType()).getLength());
+                at.setArrayType(selector.getType());
+                attrib.setType(at);
+            }
+        }else{
+            if(selector == null){
+                ArrayType at = new ArrayType();
+                at.setLength(1);
+                at.setArrayType(retAttrib.getType());
+                attrib.setType(at);
+            }else{
+                ArrayType at = new ArrayType();
+                at.setLength(((ArrayType)selector.getType()).getLength());
+                at.setArrayType(selector.getType());
+                attrib.setType(at);
+            }
+        }
+        return attrib;
+    }
 }
 
 Attrib Literal() throws YAPLException:
@@ -542,13 +646,13 @@ Attrib Literal() throws YAPLException:
 //__________________OPs_______________
 Token RelOp() throws YAPLException:
 {
-            Token token;
+    Token token;
 }
 {
-    token = "<" | token = "<=" | token = ">=" | token = ">"
+    (token = "<" | token = "<=" | token = ">=" | token = ">")
     {
-            return token;
-        }
+        return token;
+    }
 }
 
 Token EqualOp() throws YAPLException:
@@ -556,7 +660,7 @@ Token EqualOp() throws YAPLException:
     Token token;
 }
 {
-    token = "==" | token = "!="
+    (token = "==" | token = "!=")
     {
         return token;
     }
@@ -564,13 +668,13 @@ Token EqualOp() throws YAPLException:
 
 Token AddOp() throws YAPLException:
 {
-            Token token;
+     Token token;
 }
 {
-    token = "+" | token = "-"
+    (token = "+" | token = "-")
     {
-            return token;
-        }
+       return token;
+    }
 }
 
 Token MulOp() throws YAPLException:
@@ -578,7 +682,7 @@ Token MulOp() throws YAPLException:
             Token token;
 }
 {
-    token = "*" | token = "/" | token = "%"
+    (token = "*" | token = "/" | token = "%")
     {
             return token;
         }

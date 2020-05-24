@@ -3,7 +3,7 @@ package yapl.compiler;
 import yapl.interfaces.CompilerError;
 import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileNotFoundException;import java.lang.reflect.Array;
 import yapl.symbol.*;
 import yapl.lib.*;
 
@@ -139,17 +139,19 @@ public class Parser implements ParserConstants {
 
   static final public void ConstDecl() throws ParseException, YAPLException {
      Token t;
+     Attrib attrib;
     jj_consume_token(11);
     t = jj_consume_token(ident);
     jj_consume_token(12);
-    Literal();
+    attrib = Literal();
     jj_consume_token(13);
         Symbol s = new Symbol(Symbol.Constant, t.image, t.beginLine, t.beginColumn);
-                    Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
-                    if(checkedSymbol != null) {
-                                                {if (true) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);}
-                    }
-                    symboltable.addSymbol((yapl.symbol.Symbol)s);
+        s.setType(attrib.getType());
+        Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
+        if(checkedSymbol != null) {
+            {if (true) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);}
+        }
+        symboltable.addSymbol((yapl.symbol.Symbol)s);
   }
 
   static final public void VarDecl() throws ParseException, YAPLException {
@@ -157,12 +159,14 @@ public class Parser implements ParserConstants {
     Type type;
     type = Type();
     t = jj_consume_token(ident);
-                                   Symbol s = new Symbol(Symbol.Variable, t.image, t.beginLine, t.beginColumn);
-                                   s.setType(type);
-                                   Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
-                                   if(checkedSymbol != null) {if (true) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);}
-                                   symboltable.addSymbol((yapl.symbol.Symbol)s);
-                                   //symbol 'k' already declared in current scope (as variable)
+        Symbol s = new Symbol(Symbol.Variable, t.image, t.beginLine, t.beginColumn);
+        s.setType(type);
+        Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
+
+        if(checkedSymbol != null) {if (true) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);}
+        symboltable.addSymbol((yapl.symbol.Symbol)s);
+
+        //symbol 'k' already declared in current scope (as variable)
 
     label_3:
     while (true) {
@@ -177,9 +181,9 @@ public class Parser implements ParserConstants {
       jj_consume_token(14);
       u = jj_consume_token(ident);
         Symbol v = new Symbol(Symbol.Variable, u.image, u.beginLine, u.beginColumn);
-                                Symbol checkedSymbol2 = (yapl.symbol.Symbol)symboltable.lookup(u.image, u.beginLine, u.beginColumn);
-                                if(checkedSymbol2 != null) {if (true) throw new YAPLException("Identifier '" + u.image + "' already declared in current scope (as " + checkedSymbol2.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, u.beginLine, u.beginColumn);}
-                                symboltable.addSymbol((yapl.symbol.Symbol)v);
+        Symbol checkedSymbol2 = (yapl.symbol.Symbol)symboltable.lookup(u.image, u.beginLine, u.beginColumn);
+        if(checkedSymbol2 != null) {if (true) throw new YAPLException("Identifier '" + u.image + "' already declared in current scope (as " + checkedSymbol2.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, u.beginLine, u.beginColumn);}
+        symboltable.addSymbol((yapl.symbol.Symbol)v);
     }
     jj_consume_token(13);
   }
@@ -188,12 +192,13 @@ public class Parser implements ParserConstants {
     Token t;
     jj_consume_token(15);
     t = jj_consume_token(ident);
-                 Symbol s = new Symbol(Symbol.Typename, t.image, t.beginLine, t.beginColumn);
-                             Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
-                             if(checkedSymbol != null) {if (true) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);}
-                             System.out.println("Before adding symbol: " + s.getName());
-                             symboltable.addSymbol((yapl.symbol.Symbol)s);
-                             symboltable.openScope(false);
+         Symbol s = new Symbol(Symbol.Typename, t.image, t.beginLine, t.beginColumn);
+         s.setType(new RecordType(t.image));
+         Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
+         if(checkedSymbol != null) {if (true) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);}
+         System.out.println("Before adding symbol: " + s.getName());
+         symboltable.addSymbol((yapl.symbol.Symbol)s);
+         symboltable.openScope(false);
     VarDecl();
     label_4:
     while (true) {
@@ -294,11 +299,13 @@ public class Parser implements ParserConstants {
 
 //________________PROCEDUREs__________
   static final public void Procedure() throws ParseException, YAPLException {
-            Token t, endIdent;
+    Token t, endIdent;
+    Type  type;
     jj_consume_token(22);
-    ReturnType();
+    type = ReturnType();
     t = jj_consume_token(ident);
         Symbol s = new Symbol(Symbol.Procedure, t.image, t.beginLine, t.beginColumn);
+        s.setType(type);
         symboltable.addSymbol(s);
         symboltable.setParentSymbol(s);
         symboltable.openScope(false);
@@ -461,27 +468,32 @@ public class Parser implements ParserConstants {
 
   static final public void Assignment() throws ParseException, YAPLException {
     Token t;
+    Attrib attrib;
     t = jj_consume_token(ident);
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 9:
-    case 19:
-      Selector();
-      break;
-    default:
-      jj_la1[16] = jj_gen;
-      ;
-    }
-    jj_consume_token(34);
-    Expr();
         Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
         Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
         //symbol 'k' already declared in current scope (as variable)
         if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);}
         if(checkedSymbol.getKind() == (Symbol.Constant)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
         symboltable.addSymbol(s);
+        Attrib retAttrib = new Attrib();
+        retAttrib.setType(checkedSymbol.getType());
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 9:
+    case 19:
+      Selector(retAttrib);
+      break;
+    default:
+      jj_la1[16] = jj_gen;
+      ;
+    }
+    jj_consume_token(34);
+    attrib = Expr();
+        System.out.println(attrib.getType() + ", " + checkedSymbol.getType());
+        if(attrib.getType() instanceof VoidType || checkedSymbol.getType() != attrib.getType()) {if (true) throw new YAPLException("using procedure proc (not a function) in expression", CompilerError.ProcNotFuncExpr);}
   }
 
-  static final public void ProcedureCall() throws ParseException, YAPLException {
+  static final public Attrib ProcedureCall() throws ParseException, YAPLException {
     Token t;
     t = jj_consume_token(ident);
     jj_consume_token(23);
@@ -509,6 +521,12 @@ public class Parser implements ParserConstants {
             if(!(checkedSymbol.getKind() == Symbol.Procedure || checkedSymbol.getKind() == Symbol.PredefinedProcedure)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
             //symboltable.addSymbol(s);
 
+        Attrib attrib = new Attrib();
+        attrib.setKind((byte)s.getKind());
+        //Set type of procedure declaration for comparison when assigning
+        attrib.setType(checkedSymbol.getType());
+        {if (true) return attrib;}
+    throw new Error("Missing return statement in function");
   }
 
   static final public void ArgumentList() throws ParseException, YAPLException {
@@ -548,6 +566,8 @@ public class Parser implements ParserConstants {
 
 //_______________EXPRESSIONs________
   static final public Attrib Expr() throws ParseException, YAPLException {
+    Attrib expr1, expr2;
+    Token operator;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 23:
     case 38:
@@ -557,7 +577,7 @@ public class Parser implements ParserConstants {
     case 48:
     case ident:
     case number:
-      CondAndExpr();
+      expr1 = CondAndExpr();
       label_9:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -569,23 +589,28 @@ public class Parser implements ParserConstants {
           break label_9;
         }
         jj_consume_token(35);
-        CondAndExpr();
+        expr2 = CondAndExpr();
+        operator = new Token();
+        operator.image = "Or";
+        {if (true) return cg.op2(expr1, token, expr2);}
       }
       break;
     case 36:
-      CreationExpr();
-        {if (true) return new Attrib();}
+      expr1 = CreationExpr();
       break;
     default:
       jj_la1[21] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+        {if (true) return expr1;}
     throw new Error("Missing return statement in function");
   }
 
   static final public Attrib CreationExpr() throws ParseException, YAPLException {
-        Type type;
+    Attrib attrib;
+    Type type;
+    int arrayLength = 0;
     jj_consume_token(36);
     type = NonArrayType();
     label_10:
@@ -601,8 +626,19 @@ public class Parser implements ParserConstants {
       jj_consume_token(19);
       Expr();
       jj_consume_token(20);
+                                                 arrayLength++;
     }
-     {if (true) return new Attrib();}
+    attrib = new Attrib();
+    //Set alternative type if array
+    if(arrayLength > 0){
+        ArrayType t = new ArrayType();
+        t.setArrayType(type);
+        t.setLength(arrayLength);
+        attrib.setType(t);
+    }else{
+        attrib.setType(type);
+    }
+    {if (true) return attrib;}
     throw new Error("Missing return statement in function");
   }
 
@@ -645,7 +681,7 @@ public class Parser implements ParserConstants {
       jj_la1[24] = jj_gen;
       ;
     }
-     {if (true) return expr1;}
+        {if (true) return expr1;}
     throw new Error("Missing return statement in function");
   }
 
@@ -736,7 +772,7 @@ public class Parser implements ParserConstants {
 
   static final public Attrib PrimaryExpr() throws ParseException, YAPLException {
   Token t;
-  Attrib attrib = null;
+  Attrib attrib = null, selAttrib = null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 39:
     case 40:
@@ -747,39 +783,48 @@ public class Parser implements ParserConstants {
     case 23:
       jj_consume_token(23);
       attrib = Expr();
-                                                               {if (true) return attrib;}
       jj_consume_token(24);
+                                                                   {if (true) return attrib;}
       break;
     default:
       jj_la1[30] = jj_gen;
       if (jj_2_3(2)) {
-        ProcedureCall();
+        attrib = ProcedureCall();
+                                                                                                                                 {if (true) return attrib;}
       } else {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ident:
           t = jj_consume_token(ident);
-                Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
+        Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
 
-                Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
-                if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);}
-                System.out.println("Symbol to check: " + t.image + " of kind: " + t.kind);
-                System.out.println("Checked symbol: " + checkedSymbol.getName());
-                if(checkedSymbol.getKindString() != null){
-                    if(!(checkedSymbol.getKind() == Symbol.Variable || checkedSymbol.getKind() == Symbol.Constant || checkedSymbol.getKind() == Symbol.Parameter)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " '" + checkedSymbol.getName() + "'", CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
-                }
+        Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
+        if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);}
+        System.out.println("Symbol to check: " + t.image + " of kind: " + t.kind);
+        System.out.println("Checked symbol: " + checkedSymbol.getName());
+        if(checkedSymbol.getKindString() != null){
+            if(!(checkedSymbol.getKind() == Symbol.Variable || checkedSymbol.getKind() == Symbol.Constant || checkedSymbol.getKind() == Symbol.Parameter)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " '" + checkedSymbol.getName() + "'", CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
+        }
+        Attrib retAttrib = new Attrib();
+        retAttrib.setType(checkedSymbol.getType());
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case 9:
           case 19:
-            Selector();
+            selAttrib = Selector(retAttrib);
             break;
           default:
             jj_la1[29] = jj_gen;
             ;
           }
+        if(selAttrib != null){
+            Attrib a = new Attrib();
+            a.setType(selAttrib.getType());
+            retAttrib = a;
+        }
+        {if (true) return retAttrib;}
           break;
         case 38:
           ArrayLen();
-        {if (true) return attrib;}
+                  {if (true) return attrib;}
           break;
         default:
           jj_la1[31] = jj_gen;
@@ -795,32 +840,36 @@ public class Parser implements ParserConstants {
 Token t;
     jj_consume_token(38);
     t = jj_consume_token(ident);
+        Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
+        System.out.println("Kind: " + t.kind);
+        Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
+        if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);}
+        if(checkedSymbol.getKind() == (Symbol.Constant) || checkedSymbol.getKind() == (Symbol.Procedure)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
+        Attrib retAttrib = new Attrib();
+        retAttrib.setType(checkedSymbol.getType());
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 9:
     case 19:
-      Selector();
+      Selector(retAttrib);
       break;
     default:
       jj_la1[32] = jj_gen;
       ;
     }
-                Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
-                System.out.println("Kind: " + t.kind);
-                Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
-                if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);}
-                if(checkedSymbol.getKind() == (Symbol.Constant) || checkedSymbol.getKind() == (Symbol.Procedure)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
   }
 
-  static final public void Selector() throws ParseException, YAPLException {
+  static final public Attrib Selector(Attrib retAttrib) throws ParseException, YAPLException {
+    Attrib attrib, index, selector = null;
+    Token token = null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 19:
       jj_consume_token(19);
-      Expr();
+      index = Expr();
       jj_consume_token(20);
       break;
     case 9:
       jj_consume_token(9);
-      jj_consume_token(ident);
+      token = jj_consume_token(ident);
       break;
     default:
       jj_la1[33] = jj_gen;
@@ -830,12 +879,42 @@ Token t;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 9:
     case 19:
-      Selector();
+      selector = Selector(retAttrib);
       break;
     default:
       jj_la1[34] = jj_gen;
       ;
     }
+        attrib = new Attrib();
+
+        if(token != null){
+            Symbol s = new Symbol(token.kind, token.image, token.beginLine, token.beginColumn);
+            Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(token.image, token.beginLine, token.beginColumn);
+            if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + token.image + "' not declared", CompilerError.IdentNotDecl, token.beginLine, token.beginColumn);}
+
+            if(selector == null){
+                attrib.setType(checkedSymbol.getType());
+            }else{
+                ArrayType at = new ArrayType();
+                at.setLength(((ArrayType)selector.getType()).getLength());
+                at.setArrayType(selector.getType());
+                attrib.setType(at);
+            }
+        }else{
+            if(selector == null){
+                ArrayType at = new ArrayType();
+                at.setLength(1);
+                at.setArrayType(retAttrib.getType());
+                attrib.setType(at);
+            }else{
+                ArrayType at = new ArrayType();
+                at.setLength(((ArrayType)selector.getType()).getLength());
+                at.setArrayType(selector.getType());
+                attrib.setType(at);
+            }
+        }
+        {if (true) return attrib;}
+    throw new Error("Missing return statement in function");
   }
 
   static final public Attrib Literal() throws ParseException, YAPLException {
@@ -865,7 +944,7 @@ Token t;
 
 //__________________OPs_______________
   static final public Token RelOp() throws ParseException, YAPLException {
-            Token token;
+    Token token;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 41:
       token = jj_consume_token(41);
@@ -878,13 +957,13 @@ Token t;
       break;
     case 44:
       token = jj_consume_token(44);
-            {if (true) return token;}
       break;
     default:
       jj_la1[36] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+        {if (true) return token;}
     throw new Error("Missing return statement in function");
   }
 
@@ -896,31 +975,31 @@ Token t;
       break;
     case 46:
       token = jj_consume_token(46);
-        {if (true) return token;}
       break;
     default:
       jj_la1[37] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+        {if (true) return token;}
     throw new Error("Missing return statement in function");
   }
 
   static final public Token AddOp() throws ParseException, YAPLException {
-            Token token;
+     Token token;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 47:
       token = jj_consume_token(47);
       break;
     case 48:
       token = jj_consume_token(48);
-            {if (true) return token;}
       break;
     default:
       jj_la1[38] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+       {if (true) return token;}
     throw new Error("Missing return statement in function");
   }
 
@@ -935,13 +1014,13 @@ Token t;
       break;
     case 51:
       token = jj_consume_token(51);
-            {if (true) return token;}
       break;
     default:
       jj_la1[39] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+            {if (true) return token;}
     throw new Error("Missing return statement in function");
   }
 
@@ -966,6 +1045,12 @@ Token t;
     finally { jj_save(2, xla); }
   }
 
+  static private boolean jj_3R_15() {
+    if (jj_scan_token(ident)) return true;
+    if (jj_scan_token(23)) return true;
+    return false;
+  }
+
   static private boolean jj_3R_14() {
     if (jj_scan_token(ident)) return true;
     Token xsp;
@@ -980,8 +1065,28 @@ Token t;
     return false;
   }
 
+  static private boolean jj_3_1() {
+    if (jj_3R_14()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_16() {
+    if (jj_3R_17()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_19() {
+    if (jj_scan_token(9)) return true;
+    return false;
+  }
+
   static private boolean jj_3R_18() {
     if (jj_scan_token(19)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_3() {
+    if (jj_3R_15()) return true;
     return false;
   }
 
@@ -992,32 +1097,6 @@ Token t;
     jj_scanpos = xsp;
     if (jj_3R_19()) return true;
     }
-    return false;
-  }
-
-  static private boolean jj_3R_15() {
-    if (jj_scan_token(ident)) return true;
-    if (jj_scan_token(23)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_19() {
-    if (jj_scan_token(9)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_1() {
-    if (jj_3R_14()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_3() {
-    if (jj_3R_15()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_16() {
-    if (jj_3R_17()) return true;
     return false;
   }
 
