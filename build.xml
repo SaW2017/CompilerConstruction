@@ -19,8 +19,9 @@
     <property name="javacc" location="F:\Programme\JavaCC\javacc-7.0.5\target"/>
     <property name="ant-contrib" location="lib/ant-contrib.jar"/>
     <property name="mj-jar" location="mjvm/mj.jar"/>
-    <property name="version" value="symbolcheck"/>
+    <!--property name="version" value="symbolcheck"/-->
     <!--<property name="version" value="parser"/>-->
+    <property name="version" value="typecheck"/>
     <property name="yapl" location="testfiles/${version}/test01.yapl"/>
     <property name="outfile" value="${yapl}.mj"/>
     <property name="log" value="${yapl}.log"/>
@@ -179,6 +180,12 @@
         <delete dir="${build}"/>
     </target>
 
+
+    <target name="run-st" depends="deleteJavaccClasses, javacc, compile-java">
+        <java classname="yapl.compiler.Parser" classpath="${build}" output="${log}">
+            <arg value="${yapl}"/>
+        </java>
+    </target>
 
     <target name="run" ><!--depends="deleteJavaccClasses, javacc, compile-java"-->
         <java classname="yapl.compiler.Parser" classpath="${build}" output="${log}">

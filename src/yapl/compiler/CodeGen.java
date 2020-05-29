@@ -90,7 +90,7 @@ public class CodeGen {
     public Attrib op1(Token op, Attrib x) throws YAPLException {
         if(op == null) return x;
         if(!(op.image.equals("+") || op.image.equals("-"))) throw new YAPLException("Internal error.", CompilerError.Internal, op.beginLine, op.beginColumn);
-        if(!(x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for unary operator.", CompilerError.IllegalOp1Type);
+        if(!(x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for unary operator " + op.image, CompilerError.IllegalOp1Type, op.beginLine, op.beginColumn);
 
         return x;
     }
@@ -98,9 +98,10 @@ public class CodeGen {
     
     public Attrib op2(Attrib x, Token op, Attrib y) throws YAPLException {
         //TODO: Check for valid binary operator;
-        if(x.getType() != y.getType()) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type);
+        if(!Type.typeIsCompatible(x.getType(), y.getType())) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type, op.beginLine, op.beginColumn);
         if(op.image.equals("And") || op.image.equals("Or")){
-            if(!(x.getType() instanceof BooleanType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type);
+
+            if(!(x.getType() instanceof BooleanType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type, op.beginLine, op.beginColumn);
         }
         return x;
     }
@@ -108,18 +109,18 @@ public class CodeGen {
     
     public Attrib relOp(Attrib x, Token op, Attrib y) throws YAPLException {
         //"<" | "<=" | ">=" | ">"
-        if(!(op.image.equals("<") || op.image.equals("<=") || op.image.equals(">=") || op.image.equals(">"))) throw new YAPLException("Illegal operand type for relational operator.", CompilerError.Internal);
-        if(!(x.getType() instanceof IntegerType && y.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalRelOpType);
+        if(!(op.image.equals("<") || op.image.equals("<=") || op.image.equals(">=") || op.image.equals(">"))) throw new YAPLException("Illegal operand type for relational operator " + op.image, CompilerError.Internal);
+        if(!(x.getType() instanceof IntegerType && y.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalRelOpType, op.beginLine, op.beginColumn);
 
-        return x;
+        return new Attrib(new BooleanType());
     }
 
     
     public Attrib equalOp(Attrib x, Token op, Attrib y) throws YAPLException {
-        if(!(x.getType() != y.getType())) throw new YAPLException("Illegal operand type for equality operator.", CompilerError.IllegalEqualOpType);
-        if(!(x.getType() instanceof BooleanType || x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for equality operator.", CompilerError.IllegalEqualOpType);
+        if(!Type.typeIsCompatible(x.getType(), y.getType())) throw new YAPLException("Illegal operand type for equality operator " + op.image, CompilerError.IllegalEqualOpType, op.beginLine, op.beginColumn);
+        if(!(x.getType() instanceof BooleanType || x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for equality operator " + op.image, CompilerError.IllegalEqualOpType, op.beginLine, op.beginColumn);
 
-        return new yapl.compiler.Attrib(new BooleanType());
+        return new Attrib(new BooleanType());
     }
 
     

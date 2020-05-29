@@ -13,6 +13,9 @@ public class Attrib implements yapl.interfaces.Attrib {
     private int offset;
     private byte register;
 
+    int line;
+    int column;
+
     public Attrib() {
     }
 
@@ -22,6 +25,28 @@ public class Attrib implements yapl.interfaces.Attrib {
 
     public Attrib(Type type){
         this.type = type;
+    }
+
+    public Attrib(Type type, int line, int column){
+        this.type = type;
+        this.line = line;
+        this.column = column;
+    }
+
+    public int getLine() {
+        return line;
+    }
+
+    public void setLine(int line) {
+        this.line = line;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public void setColumn(int column) {
+        this.column = column;
     }
 
     @Override
