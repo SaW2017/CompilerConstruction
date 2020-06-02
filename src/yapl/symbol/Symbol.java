@@ -1,6 +1,9 @@
 package yapl.symbol;
 
+import yapl.compiler.Attrib;
 import yapl.lib.Type;
+
+import java.util.List;
 
 public class Symbol implements yapl.interfaces.Symbol {
 
@@ -23,6 +26,8 @@ public class Symbol implements yapl.interfaces.Symbol {
 
     private int line;
     private int column;
+
+    private List<Attrib> procedureParameters;
 
 
 
@@ -54,6 +59,14 @@ public class Symbol implements yapl.interfaces.Symbol {
         }
     }
 
+
+    public List<Attrib> getProcedureParameters() {
+        return procedureParameters;
+    }
+
+    public void setProcedureParameters(List<Attrib> procedureParameters) {
+        this.procedureParameters = procedureParameters;
+    }
 
     public void setKind(int kind) {
         this.kind = kind;

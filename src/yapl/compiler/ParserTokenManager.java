@@ -5,6 +5,8 @@ import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import yapl.symbol.*;
 import yapl.lib.*;
+import java.util.List;
+import java.util.ArrayList;
 
 /** Token Manager. */
 public class ParserTokenManager implements ParserConstants

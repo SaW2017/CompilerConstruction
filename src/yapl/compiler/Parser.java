@@ -5,6 +5,8 @@ import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import yapl.symbol.*;
 import yapl.lib.*;
+import java.util.List;
+import java.util.ArrayList;
 
 /** CA2.3 */
 public class Parser implements ParserConstants {
@@ -311,20 +313,16 @@ public class Parser implements ParserConstants {
   static final public void Procedure() throws ParseException, YAPLException {
     Token t, endIdent;
     Type  type;
+    List<Attrib> l = null;
     jj_consume_token(22);
     type = ReturnType();
     t = jj_consume_token(ident);
-        Symbol s = new Symbol(Symbol.Procedure, t.image, t.beginLine, t.beginColumn);
-        s.setType(type);
-        symboltable.addSymbol(s);
-        symboltable.setParentSymbol(s);
-        symboltable.openScope(false);
     jj_consume_token(23);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 17:
     case 18:
     case ident:
-      FormalParamList();
+      l = FormalParamList();
       break;
     default:
       jj_la1[9] = jj_gen;
@@ -336,11 +334,22 @@ public class Parser implements ParserConstants {
     jj_consume_token(13);
         if(!t.image.equals(endIdent.image)) {if (true) throw new YAPLException("End " + endIdent.image + " does not match procedure " + t.image, CompilerError.EndIdentMismatch, endIdent.beginLine, endIdent.beginColumn);}
         symboltable.closeScope();
+
+        Symbol s = new Symbol(Symbol.Procedure, t.image, t.beginLine, t.beginColumn);
+        s.setType(type);
+        s.setProcedureParameters(l);
+        symboltable.addSymbol(s);
+        symboltable.setParentSymbol(s);
+        symboltable.openScope(false);
   }
 
-  static final public void FormalParamList() throws ParseException, YAPLException {
+  static final public List<Attrib> FormalParamList() throws ParseException, YAPLException {
+        Attrib t1, t2;
+        List<Attrib> l;
      System.out.println("Formal Paramlist incoming");
-    FormalParam();
+    t1 = FormalParam();
+        l = new ArrayList<Attrib>();
+        l.add(t1);
     label_6:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -352,11 +361,14 @@ public class Parser implements ParserConstants {
         break label_6;
       }
       jj_consume_token(14);
-      FormalParam();
+      t2 = FormalParam();
+         l.add(t2);
     }
+      {if (true) return l;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void FormalParam() throws ParseException, YAPLException {
+  static final public Attrib FormalParam() throws ParseException, YAPLException {
     Token t;
     Type type;
     type = Type();
@@ -364,6 +376,12 @@ public class Parser implements ParserConstants {
                 Symbol s = new Symbol(Symbol.Parameter, t.image, t.beginLine, t.beginColumn);
                 s.setType(type);
                 symboltable.addSymbol((yapl.symbol.Symbol)s);
+                Attrib a = new Attrib();
+                a.setType(type);
+                a.setLine(t.beginLine);
+                a.setColumn(t.beginColumn);
+                {if (true) return a;}
+    throw new Error("Missing return statement in function");
   }
 
 //________________END OF PROCEDUREs____
@@ -503,20 +521,42 @@ public class Parser implements ParserConstants {
 
      System.out.println(checkedSymbol.getType().getClass() + " := " + attrib.getType().getClass());
      if(selector != null){
+         if(selector.getType() instanceof ArrayType){
+             System.out.println("Selector in assignment is of type array");
+             ArrayType at = new ArrayType();
+             at.setLength(((ArrayType)selector.getType()).getLength()+1);
+             at.setTypeOfArray(((ArrayType)selector.getType()).getTypeOfArray());
+             selector.setType(at);
+         }else if(selector.getType() instanceof RecordType){
+             System.out.println("Selector in assignment is of type record");
+
+         }else{
+            System.out.println("Selector in assignment is of type " + selector.getType().getClass());
+             ArrayType at = new ArrayType();
+             at.setLength(1);
+             at.setTypeOfArray(selector.getType());
+             selector.setType(at);
+         }
+
+         System.out.println("SELEKTOR: " + selector.getType().getClass() + " := " + attrib.getType().getClass());
+
         if(checkedSymbol.getType() instanceof  ArrayType){
             retAttrib.setType(((ArrayType)checkedSymbol.getType()).getArrayDiff(selector.getType()));
         }
      }else{
         if(checkedSymbol.getType() instanceof  ArrayType){
-            retAttrib.setType(((ArrayType)checkedSymbol.getType()).getArrayDiff(((ArrayType)checkedSymbol.getType()).getTypeOfArray()));
+            ArrayType at = new ArrayType();
+            at.setLength(0);
+
+            retAttrib.setType(((ArrayType)checkedSymbol.getType()).getArrayDiff(new IntegerType()));
         }else{
             retAttrib.setType(checkedSymbol.getType());
         }
      }
 
      Type type = attrib.getType();// instanceof  ArrayType ? ((ArrayType)attrib.getType()).getArrayDiff(((ArrayType)attrib.getType()).getDeclSymbol().getType()) : attrib.getType();
-     System.out.println("Type for assignment: " + type.toString());
-     System.out.println("Type for assignment: " + retAttrib.getType().toString());
+     System.out.println("Type for left assignment: " + checkedSymbol.getType().toString());
+     System.out.println("Type for right assignment: " + attrib.getType().toString());
      if(!yapl.lib.Type.typeIsCompatible(retAttrib.getType(), type)){
          {if (true) throw new YAPLException("type mismatch in assignment", CompilerError.TypeMismatchAssign, assigner.beginLine, assigner.beginColumn);}
      }
@@ -527,9 +567,17 @@ public class Parser implements ParserConstants {
   }
 
   static final public Attrib ProcedureCall() throws ParseException, YAPLException {
-    Token t;
+    Token t, bracket1;
+    List<Attrib> l = new ArrayList<Attrib>();
     t = jj_consume_token(ident);
-    jj_consume_token(23);
+            Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
+            Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
+            //symbol 'k' already declared in current scope (as variable)
+            if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);}
+            if(!(checkedSymbol.getKind() == Symbol.Procedure || checkedSymbol.getKind() == Symbol.PredefinedProcedure)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
+            //symboltable.addSymbol(s);
+
+    bracket1 = jj_consume_token(23);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 23:
     case 36:
@@ -540,19 +588,33 @@ public class Parser implements ParserConstants {
     case 48:
     case ident:
     case number:
-      ArgumentList();
+      l = ArgumentList();
       break;
     default:
       jj_la1[17] = jj_gen;
       ;
     }
     jj_consume_token(24);
-            Symbol s = new Symbol(t.kind, t.image, t.beginLine, t.beginColumn);
-            Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.lookup(t.image, t.beginLine, t.beginColumn);
-            //symbol 'k' already declared in current scope (as variable)
-            if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);}
-            if(!(checkedSymbol.getKind() == Symbol.Procedure || checkedSymbol.getKind() == Symbol.PredefinedProcedure)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
-            //symboltable.addSymbol(s);
+        if(checkedSymbol.getKind() == Symbol.Procedure){
+            System.out.println(checkedSymbol.getProcedureParameters().size());
+            System.out.println(l.size());
+            if(checkedSymbol.getProcedureParameters().size() > l.size()){
+                        {if (true) throw new YAPLException("too few arguments for procedure " + checkedSymbol.getName(), CompilerError.TooFewArgs, bracket1.beginLine, bracket1.beginColumn+1);}
+            }else{
+                int idx = 0;
+                for(Attrib a : l){
+                    boolean compatible = false;
+                    if(checkedSymbol.getProcedureParameters().size() > idx){
+                        if(checkedSymbol.getProcedureParameters().get(idx).getType().getClass() == a.getType().getClass() ){
+                            compatible = true;
+                        }
+                    }
+                    if(!compatible) {if (true) throw new YAPLException("argument #" + (idx+1) + " not applicable to procedure " + t.image, CompilerError.ArgNotApplicable, a.getLine(), a.getColumn());}
+
+                    idx++;
+                }
+            }
+        }
 
         Attrib attrib = new Attrib();
         attrib.setKind((byte)s.getKind());
@@ -564,8 +626,12 @@ public class Parser implements ParserConstants {
     throw new Error("Missing return statement in function");
   }
 
-  static final public void ArgumentList() throws ParseException, YAPLException {
-    Expr();
+  static final public List<Attrib> ArgumentList() throws ParseException, YAPLException {
+    List<Attrib> l = null;
+    Attrib a1, a2;
+    a1 = Expr();
+        l = new ArrayList<Attrib>();
+        l.add(a1);
     label_8:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -577,8 +643,16 @@ public class Parser implements ParserConstants {
         break label_8;
       }
       jj_consume_token(14);
-      Expr();
+      a2 = Expr();
+        l.add(a2);
     }
+        /*System.out.println("Procedure parameters: " + sym.getProcedureParameters().size());
+        System.out.println("Procedure Call parameters: " + l.size());
+        if(sym.getProcedureParameters().size() != l.size()){
+            throw new YAPLException("too few arguments for procedure " + sym.getName(), CompilerError.TooFewArgs, sym.getLine(), sym.getColumn());
+        }*/
+        {if (true) return l;}
+    throw new Error("Missing return statement in function");
   }
 
   static final public void Block() throws ParseException, YAPLException {
@@ -879,7 +953,8 @@ public class Parser implements ParserConstants {
         System.out.println("Checked symbol '" + checkedSymbol.getName() + "' of type: " + checkedSymbol.getType());
         if(selAttrib != null){
             //Check, if symbol before [] is of ArrayType
-            if(selAttrib.getType().getClass() == ArrayType.class && checkedSymbol.getType().getClass() != ArrayType.class) {if (true) throw new YAPLException("expression before '[' is not an array type", CompilerError.SelectorNotArray, t.beginLine, t.beginColumn+1);}
+            //if(selAttrib.getType().getClass() == ArrayType.class && checkedSymbol.getType().getClass() != ArrayType.class) throw new YAPLException("expression before '[' is not an array type", CompilerError.SelectorNotArray, t.beginLine, t.beginColumn+1);
+            if(checkedSymbol.getType().getClass() != ArrayType.class) {if (true) throw new YAPLException("expression before '[' is not an array type", CompilerError.SelectorNotArray, t.beginLine, t.beginColumn+1);}
             Attrib a = new Attrib();
             a.setType(selAttrib.getType());
             if(selAttrib.getType() instanceof ArrayType) ((ArrayType) selAttrib.getType()).setDeclSymbol(checkedSymbol);
@@ -913,11 +988,17 @@ public class Parser implements ParserConstants {
         if(checkedSymbol == null) {if (true) throw new YAPLException("identifier '" + t.image + "' not declared", CompilerError.IdentNotDecl, t.beginLine, t.beginColumn);}
         if(checkedSymbol.getKind() == (Symbol.Constant) || checkedSymbol.getKind() == (Symbol.Procedure)) {if (true) throw new YAPLException("illegal use of " + checkedSymbol.getKindString().toLowerCase() + " " + checkedSymbol.getName(), CompilerError.SymbolIllegalUse, t.beginLine, t.beginColumn);}
         Attrib retAttrib = new Attrib();
-        retAttrib.setType(checkedSymbol.getType());
-
 
         if(checkedSymbol.getType() instanceof ArrayType){
-            //TODO: check for array level
+            if(((ArrayType)checkedSymbol.getType()).getLength() == 1){
+                //retAttrib.setType(((ArrayType)checkedSymbol.getType()).getTypeOfArray());
+                retAttrib.setType(new IntegerType());
+            }else{
+                ArrayType at = new ArrayType();
+                at.setTypeOfArray((ArrayType)checkedSymbol.getType());
+                at.setLength(((ArrayType)checkedSymbol.getType()).getLength()-1);
+                retAttrib.setType(at);
+            }
         }else{
              {if (true) throw new YAPLException("expression after '#' is not an array type", CompilerError.ArrayLenNotArray, sym.beginLine, sym.beginColumn);}
         }
@@ -997,10 +1078,7 @@ public class Parser implements ParserConstants {
         }
 
         if(selector == null){
-            ArrayType at = new ArrayType();
-            at.setLength(1);
-            at.setTypeOfArray(retAttrib.getType());
-            attrib.setType(at);
+            attrib.setType(index.getType());
         }else{
             ArrayType at = new ArrayType();
             at.setLength(((ArrayType)selector.getType()).getLength());
@@ -1008,6 +1086,7 @@ public class Parser implements ParserConstants {
             attrib.setType(at);
         }
     }
+    System.out.println("RETURNING SELECTOR: " + attrib.getType());
     {if (true) return attrib;}
     throw new Error("Missing return statement in function");
   }
@@ -1141,21 +1220,6 @@ public class Parser implements ParserConstants {
     finally { jj_save(2, xla); }
   }
 
-  static private boolean jj_3R_18() {
-    if (jj_scan_token(19)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_17() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_18()) {
-    jj_scanpos = xsp;
-    if (jj_3R_19()) return true;
-    }
-    return false;
-  }
-
   static private boolean jj_3R_16() {
     if (jj_3R_17()) return true;
     return false;
@@ -1177,17 +1241,32 @@ public class Parser implements ParserConstants {
     return false;
   }
 
+  static private boolean jj_3R_19() {
+    if (jj_scan_token(9)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_18() {
+    if (jj_scan_token(19)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_17() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_18()) {
+    jj_scanpos = xsp;
+    if (jj_3R_19()) return true;
+    }
+    return false;
+  }
+
   static private boolean jj_3R_14() {
     if (jj_scan_token(ident)) return true;
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_16()) jj_scanpos = xsp;
     if (jj_scan_token(34)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_19() {
-    if (jj_scan_token(9)) return true;
     return false;
   }
 
