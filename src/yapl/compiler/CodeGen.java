@@ -98,12 +98,14 @@ public class CodeGen {
     
     public Attrib op2(Attrib x, Token op, Attrib y) throws YAPLException {
         //TODO: Check for valid binary operator;
+
         if(!Type.typeIsCompatible(x.getType(), y.getType())) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type, op.beginLine, op.beginColumn);
         if(op.image.equals("And") || op.image.equals("Or")){
 
             if(!(x.getType() instanceof BooleanType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type, op.beginLine, op.beginColumn);
         }
-        return x;
+
+        return y;
     }
 
     
@@ -112,7 +114,7 @@ public class CodeGen {
         if(!(op.image.equals("<") || op.image.equals("<=") || op.image.equals(">=") || op.image.equals(">"))) throw new YAPLException("Illegal operand type for relational operator " + op.image, CompilerError.Internal);
         if(!(x.getType() instanceof IntegerType && y.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalRelOpType, op.beginLine, op.beginColumn);
 
-        return new Attrib(new BooleanType());
+        return new Attrib(new BooleanType(), y.getLine(), y.getColumn());
     }
 
     

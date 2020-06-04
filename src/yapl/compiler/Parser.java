@@ -5,6 +5,7 @@ import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import yapl.symbol.*;
 import yapl.lib.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -39,25 +40,34 @@ public class Parser implements ParserConstants {
 
   static final public void Program() throws ParseException, YAPLException {
         Token t, endIdent;
+        List<Attrib> l = null;
         symboltable.openScope(true);
 
-        /*Symbol pp1 = new Symbol(Symbol.PredefinedProcedure, "writeint", 0, 0);
-                Symbol pp1p = new Symbol(Symbol.Parameter, "i", 0, 0);
+        ProcedureType pt;
 
-                Symbol pp2 = new Symbol(Symbol.PredefinedProcedure, "writebool", 0, 0);
-                Symbol pp2p = new Symbol(Symbol.Parameter, "b", 0, 0);
+        Symbol pp1 = new Symbol(Symbol.PredefinedProcedure, "writeint", 0, 0);
+        pp1.setProcedureParameters(Arrays.asList(new Attrib(new IntegerType())));
+        pt = new ProcedureType(new VoidType());
+        pp1.setType(pt);
+        symboltable.addSymbol(pp1);
 
-                Symbol pp3 = new Symbol(Symbol.PredefinedProcedure, "writeln", 0, 0);
+        Symbol pp2 = new Symbol(Symbol.PredefinedProcedure, "writebool", 0, 0);
+        pp2.setProcedureParameters(Arrays.asList(new Attrib(new BooleanType())));
+        pt = new ProcedureType(new VoidType());
+        pp2.setType(pt);
+        symboltable.addSymbol(pp2);
 
-                Symbol pp4 = new Symbol(Symbol.PredefinedProcedure, "readint", 0, 0);
+        Symbol pp3 = new Symbol(Symbol.PredefinedProcedure, "writeln", 0, 0);
+        pp3.setProcedureParameters(new ArrayList<Attrib>());
+        pt = new ProcedureType(new VoidType());
+        pp3.setType(pt);
+        symboltable.addSymbol(pp3);
 
-                symboltable.addSymbol(pp1);
-                symboltable.addSymbol(pp1p);
-                symboltable.addSymbol(pp2);
-                symboltable.addSymbol(pp2p);
-                symboltable.addSymbol(pp3);
-                symboltable.addSymbol(pp4);*/
-
+        Symbol pp4 = new Symbol(Symbol.PredefinedProcedure, "readint", 0, 0);
+        pp4.setProcedureParameters(new ArrayList<Attrib>());
+        pt = new ProcedureType(new IntegerType());
+        pp4.setType(pt);
+        symboltable.addSymbol(pp4);
     jj_consume_token(6);
     t = jj_consume_token(ident);
         symboltable.openScope(true);
@@ -92,7 +102,14 @@ public class Parser implements ParserConstants {
       }
     }
     jj_consume_token(7);
-    StatementList();
+    l = StatementList();
+        if(l != null){
+            for(Attrib at : l){
+                if(at.getType() instanceof ReturnType){
+                    {if (true) throw new YAPLException("illegal return value in main program", CompilerError.IllegalRetValMain, at.getLine(), at.getColumn());}
+                }
+             }
+        }
     jj_consume_token(8);
     endIdent = jj_consume_token(ident);
         if(!programName.equals(endIdent.image)) {if (true) throw new YAPLException("End " + endIdent.image + " does not match program " + programName, CompilerError.EndIdentMismatch, endIdent.beginLine, endIdent.beginColumn);}
@@ -313,10 +330,15 @@ public class Parser implements ParserConstants {
   static final public void Procedure() throws ParseException, YAPLException {
     Token t, endIdent;
     Type  type;
-    List<Attrib> l = null;
+    List<Attrib> l = new ArrayList<Attrib>();
     jj_consume_token(22);
     type = ReturnType();
     t = jj_consume_token(ident);
+            Symbol s = new Symbol(Symbol.Procedure, t.image, t.beginLine, t.beginColumn);
+            s.setType(type);
+            symboltable.addSymbol(s);
+            symboltable.setParentSymbol(s);
+     symboltable.openScope(true);
     jj_consume_token(23);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 17:
@@ -329,18 +351,12 @@ public class Parser implements ParserConstants {
       ;
     }
     jj_consume_token(24);
-    Block();
+        s.setProcedureParameters(l);
+    Block(new ReturnType(type), t.image);
     endIdent = jj_consume_token(ident);
     jj_consume_token(13);
         if(!t.image.equals(endIdent.image)) {if (true) throw new YAPLException("End " + endIdent.image + " does not match procedure " + t.image, CompilerError.EndIdentMismatch, endIdent.beginLine, endIdent.beginColumn);}
-        symboltable.closeScope();
-
-        Symbol s = new Symbol(Symbol.Procedure, t.image, t.beginLine, t.beginColumn);
-        s.setType(type);
-        s.setProcedureParameters(l);
-        symboltable.addSymbol(s);
-        symboltable.setParentSymbol(s);
-        symboltable.openScope(false);
+        {symboltable.closeScope();}
   }
 
   static final public List<Attrib> FormalParamList() throws ParseException, YAPLException {
@@ -387,7 +403,9 @@ public class Parser implements ParserConstants {
 //________________END OF PROCEDUREs____
 
 //________________STATEMENTs___________
-  static final public void StatementList() throws ParseException, YAPLException {
+  static final public List<Attrib> StatementList() throws ParseException, YAPLException {
+    Attrib attr;
+    List<Attrib> l = new ArrayList<Attrib>();
     label_7:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -404,12 +422,16 @@ public class Parser implements ParserConstants {
         jj_la1[11] = jj_gen;
         break label_7;
       }
-      Statement();
+      attr = Statement();
       jj_consume_token(13);
+         l.add(new Attrib(attr.getType(), attr.getLine(), attr.getColumn()));
     }
+     {if (true) return l;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void Statement() throws ParseException, YAPLException {
+  static final public Attrib Statement() throws ParseException, YAPLException {
+    Attrib attr;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 30:
       IfStatement();
@@ -418,7 +440,8 @@ public class Parser implements ParserConstants {
       WhileStatement();
       break;
     case 26:
-      ReturnStatement();
+      attr = ReturnStatement();
+                                                                  {if (true) return attr;}
       break;
     case 25:
       WriteStatement();
@@ -433,7 +456,7 @@ public class Parser implements ParserConstants {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case 7:
         case 10:
-          Block();
+          Block(null, null);
           break;
         default:
           jj_la1[13] = jj_gen;
@@ -442,6 +465,9 @@ public class Parser implements ParserConstants {
         }
       }
     }
+        attr = new Attrib();
+        {if (true) return attr;}
+    throw new Error("Missing return statement in function");
   }
 
   static final public void WriteStatement() throws ParseException, YAPLException {
@@ -449,8 +475,10 @@ public class Parser implements ParserConstants {
     jj_consume_token(string);
   }
 
-  static final public void ReturnStatement() throws ParseException, YAPLException {
-    jj_consume_token(26);
+  static final public Attrib ReturnStatement() throws ParseException, YAPLException {
+    Attrib expr = null;
+    Token t;
+    t = jj_consume_token(26);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 23:
     case 36:
@@ -461,25 +489,36 @@ public class Parser implements ParserConstants {
     case 48:
     case ident:
     case number:
-      Expr();
+      expr = Expr();
       break;
     default:
       jj_la1[14] = jj_gen;
       ;
     }
+        if(expr == null){
+            expr = new Attrib(new ReturnType(new VoidType()), t.beginLine, t.beginColumn);
+        }else{
+            expr = new Attrib(new ReturnType(expr.getType()), expr.getLine(), expr.getColumn());
+        }
+        {if (true) return expr;}
+    throw new Error("Missing return statement in function");
   }
 
   static final public void WhileStatement() throws ParseException, YAPLException {
+    Attrib expr;
     jj_consume_token(27);
-    Expr();
+    expr = Expr();
+        if(!(expr.getType() instanceof BooleanType)) {if (true) throw new YAPLException("condition is not a boolean expression", CompilerError.CondNotBool, expr.getLine(), expr.getColumn());}
     jj_consume_token(28);
     StatementList();
     jj_consume_token(29);
   }
 
   static final public void IfStatement() throws ParseException, YAPLException {
+    Attrib expr;
     jj_consume_token(30);
-    Expr();
+    expr = Expr();
+        if(!(expr.getType() instanceof BooleanType)) {if (true) throw new YAPLException("condition is not a boolean expression", CompilerError.CondNotBool, expr.getLine(), expr.getColumn());}
     jj_consume_token(31);
     StatementList();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -595,31 +634,39 @@ public class Parser implements ParserConstants {
       ;
     }
     jj_consume_token(24);
-        if(checkedSymbol.getKind() == Symbol.Procedure){
-            System.out.println(checkedSymbol.getProcedureParameters().size());
-            System.out.println(l.size());
-            if(checkedSymbol.getProcedureParameters().size() > l.size()){
-                        {if (true) throw new YAPLException("too few arguments for procedure " + checkedSymbol.getName(), CompilerError.TooFewArgs, bracket1.beginLine, bracket1.beginColumn+1);}
-            }else{
-                int idx = 0;
-                for(Attrib a : l){
-                    boolean compatible = false;
-                    if(checkedSymbol.getProcedureParameters().size() > idx){
-                        if(checkedSymbol.getProcedureParameters().get(idx).getType().getClass() == a.getType().getClass() ){
-                            compatible = true;
+        System.out.println("Procedure has kind: " + checkedSymbol.getKindString());
+        if(checkedSymbol.getKind() == Symbol.Procedure || checkedSymbol.getKind() == Symbol.PredefinedProcedure){
+                if(checkedSymbol.getProcedureParameters().size() > l.size()){
+                            {if (true) throw new YAPLException("too few arguments for procedure " + checkedSymbol.getName(), CompilerError.TooFewArgs, bracket1.beginLine, bracket1.beginColumn+1);}
+                }else{
+                    System.out.println("Test " + l.size());
+                    int idx = 0;
+                    for(Attrib a : l){
+                        if(a.getType().getClass() == VoidType.class) {if (true) throw new YAPLException("using procedure " + t.image + " (not a function) in expression" , CompilerError.ProcNotFuncExpr, a.getLine(), a.getColumn());}
+                        boolean compatible = false;
+                        if(checkedSymbol.getProcedureParameters().size() > idx){
+                            if(checkedSymbol.getProcedureParameters().get(idx).getType().getClass() == a.getType().getClass() ){
+                                compatible = true;
+                            }
                         }
-                    }
-                    if(!compatible) {if (true) throw new YAPLException("argument #" + (idx+1) + " not applicable to procedure " + t.image, CompilerError.ArgNotApplicable, a.getLine(), a.getColumn());}
+                        if(!compatible) {if (true) throw new YAPLException("argument #" + (idx+1) + " not applicable to procedure " + t.image, CompilerError.ArgNotApplicable, a.getLine(), a.getColumn());}
 
-                    idx++;
+                        idx++;
+                    }
+                    System.out.println("Test");
                 }
-            }
+
         }
 
         Attrib attrib = new Attrib();
         attrib.setKind((byte)s.getKind());
         //Set type of procedure declaration for comparison when assigning
-        attrib.setType(checkedSymbol.getType());
+        if(checkedSymbol.getType() instanceof ProcedureType){
+            System.out.println(((ProcedureType)checkedSymbol.getType()).getReturnType());
+            attrib.setType(((ProcedureType)checkedSymbol.getType()).getReturnType());
+        }else{
+            attrib.setType(checkedSymbol.getType());
+        }
         attrib.setLine(t.beginLine);
         attrib.setColumn(t.beginColumn);
         {if (true) return attrib;}
@@ -655,7 +702,9 @@ public class Parser implements ParserConstants {
     throw new Error("Missing return statement in function");
   }
 
-  static final public void Block() throws ParseException, YAPLException {
+  static final public void Block(Type returnType, String procName) throws ParseException, YAPLException {
+    Token startToken, endToken;
+    List<Attrib> l = null;
      symboltable.openScope(false);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 10:
@@ -666,9 +715,28 @@ public class Parser implements ParserConstants {
       ;
     }
     jj_consume_token(7);
-    StatementList();
-    jj_consume_token(8);
+    l = StatementList();
+    endToken = jj_consume_token(8);
      symboltable.closeScope();
+        if(returnType != null){
+            if(!(((ReturnType)returnType).getType() instanceof VoidType)){
+                boolean returnAvail = false;
+                    for(Attrib t : l){
+                    if(t.getType() instanceof ReturnType){
+                        returnAvail = true;
+                        //TODO: Check for correct type of returntype
+
+                        if(((ReturnType)returnType).getType().getClass() != ((ReturnType)t.getType()).getType().getClass()) {if (true) throw new YAPLException("returning none or invalid type from function " + procName, CompilerError.InvalidReturnType, t.getLine(), t.getColumn());}
+                    }
+                }
+                if(!returnAvail) {if (true) throw new YAPLException("missing Return statement in function " + procName, CompilerError.MissingReturn, endToken.beginLine, endToken.beginColumn);}
+            }else{
+               for(Attrib t : l){
+                    if(t.getType() instanceof ReturnType) {if (true) throw new YAPLException("illegal return value in procedure proc (not a function) " + procName, CompilerError.IllegalRetValProc, t.getLine(), t.getColumn());}
+                }
+            }
+            //TODO: CHeck for return statement in void procedure
+        }
   }
 
 //________________END OF STATEMENTs_____
@@ -817,7 +885,7 @@ public class Parser implements ParserConstants {
     case 44:
       operator = RelOp();
       expr2 = AddExpr();
-        System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
+        System.out.println("Type RelExpr: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
         {if (true) return cg.relOp(expr1, operator, expr2);}
       break;
     default:
@@ -1220,37 +1288,6 @@ public class Parser implements ParserConstants {
     finally { jj_save(2, xla); }
   }
 
-  static private boolean jj_3R_16() {
-    if (jj_3R_17()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_1() {
-    if (jj_3R_14()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_3() {
-    if (jj_3R_15()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_15() {
-    if (jj_scan_token(ident)) return true;
-    if (jj_scan_token(23)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_19() {
-    if (jj_scan_token(9)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_18() {
-    if (jj_scan_token(19)) return true;
-    return false;
-  }
-
   static private boolean jj_3R_17() {
     Token xsp;
     xsp = jj_scanpos;
@@ -1258,6 +1295,12 @@ public class Parser implements ParserConstants {
     jj_scanpos = xsp;
     if (jj_3R_19()) return true;
     }
+    return false;
+  }
+
+  static private boolean jj_3R_15() {
+    if (jj_scan_token(ident)) return true;
+    if (jj_scan_token(23)) return true;
     return false;
   }
 
@@ -1270,8 +1313,33 @@ public class Parser implements ParserConstants {
     return false;
   }
 
+  static private boolean jj_3_3() {
+    if (jj_3R_15()) return true;
+    return false;
+  }
+
   static private boolean jj_3_2() {
     if (jj_3R_15()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_16() {
+    if (jj_3R_17()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_19() {
+    if (jj_scan_token(9)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_1() {
+    if (jj_3R_14()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_18() {
+    if (jj_scan_token(19)) return true;
     return false;
   }
 

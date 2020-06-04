@@ -5,6 +5,7 @@ import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import yapl.symbol.*;
 import yapl.lib.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 

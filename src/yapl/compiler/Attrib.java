@@ -118,4 +118,5 @@ public class Attrib implements yapl.interfaces.Attrib {
     public void setRegister(byte register) {
         this.register = register;
     }
+
 }

@@ -4,6 +4,10 @@ import java.util.List;
 
 public class ProcedureType extends Type {
 
+    public ProcedureType(Type returnType) {
+        this.returnType = returnType;
+    }
+
     private Type returnType;
     private List<Type> parameterTypes;
 
