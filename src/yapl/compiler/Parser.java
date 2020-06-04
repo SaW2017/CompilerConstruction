@@ -558,6 +558,7 @@ public class Parser implements ParserConstants {
     attrib = Expr();
     if(attrib.getType() instanceof VoidType) {if (true) throw new YAPLException("using procedure proc (not a function) in expression", CompilerError.ProcNotFuncExpr, attrib.getLine(), attrib.getColumn());}
 
+    System.out.println("Assignment");
      System.out.println(checkedSymbol.getType().getClass() + " := " + attrib.getType().getClass());
      if(selector != null){
          if(selector.getType() instanceof ArrayType){
@@ -848,7 +849,7 @@ public class Parser implements ParserConstants {
       operator = jj_consume_token(37);
       expr2 = EqualExpr();
         System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        {if (true) return cg.op2(expr1, operator, expr2);}
+        expr1 = cg.op2(expr1, operator, expr2);
     }
      {if (true) return expr1;}
     throw new Error("Missing return statement in function");
@@ -864,7 +865,7 @@ public class Parser implements ParserConstants {
       operator = EqualOp();
       expr2 = RelExpr();
         System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        {if (true) return cg.equalOp(expr1, operator, expr2);}
+        expr1 = cg.equalOp(expr1, operator, expr2);
       break;
     default:
       jj_la1[24] = jj_gen;
@@ -886,7 +887,7 @@ public class Parser implements ParserConstants {
       operator = RelOp();
       expr2 = AddExpr();
         System.out.println("Type RelExpr: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        {if (true) return cg.relOp(expr1, operator, expr2);}
+        expr1 = cg.relOp(expr1, operator, expr2);
       break;
     default:
       jj_la1[25] = jj_gen;
@@ -914,7 +915,7 @@ public class Parser implements ParserConstants {
       operator = AddOp();
       expr2 = MulExpr();
         System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        {if (true) return cg.op2(expr1, operator, expr2);}
+        expr1 = cg.op2(expr1, operator, expr2);
     }
      {if (true) return expr1;}
     throw new Error("Missing return statement in function");
@@ -939,7 +940,7 @@ public class Parser implements ParserConstants {
       operator = MulOp();
       expr2 = UnaryExpr();
         System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        {if (true) return cg.op2(expr1, operator, expr2);}
+        expr1 = cg.op2(expr1, operator, expr2);
     }
      {if (true) return expr1;}
     throw new Error("Missing return statement in function");
@@ -1288,16 +1289,6 @@ public class Parser implements ParserConstants {
     finally { jj_save(2, xla); }
   }
 
-  static private boolean jj_3R_17() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_18()) {
-    jj_scanpos = xsp;
-    if (jj_3R_19()) return true;
-    }
-    return false;
-  }
-
   static private boolean jj_3R_15() {
     if (jj_scan_token(ident)) return true;
     if (jj_scan_token(23)) return true;
@@ -1340,6 +1331,16 @@ public class Parser implements ParserConstants {
 
   static private boolean jj_3R_18() {
     if (jj_scan_token(19)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_17() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_18()) {
+    jj_scanpos = xsp;
+    if (jj_3R_19()) return true;
+    }
     return false;
   }
 

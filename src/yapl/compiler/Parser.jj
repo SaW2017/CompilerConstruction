@@ -440,6 +440,7 @@ void Assignment() throws YAPLException:
 
     if(attrib.getType() instanceof VoidType) throw new YAPLException("using procedure proc (not a function) in expression", CompilerError.ProcNotFuncExpr, attrib.getLine(), attrib.getColumn());
 
+    System.out.println("Assignment");
      System.out.println(checkedSymbol.getType().getClass() + " := " + attrib.getType().getClass());
      if(selector != null){
          if(selector.getType() instanceof ArrayType){
@@ -676,7 +677,7 @@ Attrib CondAndExpr() throws YAPLException:
     expr1 = EqualExpr() (operator = "And" expr2 = EqualExpr()
     {
         System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        return cg.op2(expr1, operator, expr2);
+        expr1 = cg.op2(expr1, operator, expr2);
     }
     )*
 
@@ -692,7 +693,7 @@ Attrib EqualExpr() throws YAPLException:
     expr1 = RelExpr() (operator = EqualOp() expr2 = RelExpr()
     {
         System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        return cg.equalOp(expr1, operator, expr2);
+        expr1 = cg.equalOp(expr1, operator, expr2);
     }
     )?
     {
@@ -709,7 +710,7 @@ Attrib RelExpr() throws YAPLException:
     expr1 = AddExpr() (operator = RelOp() expr2 = AddExpr()
     {
         System.out.println("Type RelExpr: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        return cg.relOp(expr1, operator, expr2);
+        expr1 = cg.relOp(expr1, operator, expr2);
     }
     )?
 
@@ -725,7 +726,7 @@ Attrib AddExpr() throws YAPLException:
     expr1 = MulExpr() (operator = AddOp() expr2 = MulExpr()
     {
         System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        return cg.op2(expr1, operator, expr2);
+        expr1 = cg.op2(expr1, operator, expr2);
     }
     )*
 
@@ -742,7 +743,7 @@ Attrib MulExpr() throws YAPLException:
     expr1 = UnaryExpr() (operator = MulOp() expr2 = UnaryExpr()
     {
         System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
-        return cg.op2(expr1, operator, expr2);
+        expr1 = cg.op2(expr1, operator, expr2);
     }
     )*
 
