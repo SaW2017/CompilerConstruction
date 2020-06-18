@@ -21,7 +21,8 @@
     <property name="mj-jar" location="mjvm/mj.jar"/>
     <!--property name="version" value="symbolcheck"/-->
     <!--<property name="version" value="parser"/>-->
-    <property name="version" value="typecheck"/>
+    <!--<property name="version" value="typecheck"/>-->
+    <property name="version" value="codegen"/>
     <property name="yapl" location="testfiles/${version}/test01.yapl"/>
     <property name="outfile" value="${yapl}.mj"/>
     <property name="log" value="${yapl}.log"/>
