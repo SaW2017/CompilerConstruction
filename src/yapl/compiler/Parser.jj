@@ -5,7 +5,7 @@ options {
 
 PARSER_BEGIN(Parser)
 package yapl.compiler;
-import yapl.interfaces.CompilerError;
+import yapl.LoggerService;import yapl.interfaces.CompilerError;
 import yapl.lib.CompilerMessage;
 import java.io.FileInputStream;
 import yapl.symbol.*;
@@ -16,6 +16,9 @@ import java.util.ArrayList;
 
 /** CA2.3 */
 public class Parser {
+
+    public static boolean loggingIsEnabled = false;
+    public static boolean printCompilerMessage = false;
 
     private static String programName = "";
     private static Symboltable symboltable = new Symboltable();
@@ -29,9 +32,11 @@ public class Parser {
             return;
         }
         try{
+            cg.setFileName(args[0]);
             Parser parser = new Parser(new FileInputStream(args[0]));
             parser.Program();
-            CompilerMessage.printOK(programName);
+            cg.end();
+            if(printCompilerMessage) CompilerMessage.printOK(programName);
         } catch (ParseException e) {
             CompilerMessage.printError(e, programName);
         } catch(TokenMgrError e) {
@@ -82,34 +87,34 @@ void Program() throws YAPLException:
 }
 {
     {
-        symboltable.openScope(true);
+    symboltable.openScope(true);
 
-        ProcedureType pt;
+    ProcedureType pt;
 
-        Symbol pp1 = new Symbol(Symbol.PredefinedProcedure, "writeint", 0, 0);
-        pp1.setProcedureParameters(Arrays.asList(new Attrib(new IntegerType())));
-        pt = new ProcedureType(new VoidType());
-        pp1.setType(pt);
-        symboltable.addSymbol(pp1);
+    Symbol pp1 = new Symbol(Symbol.PredefinedProcedure, "writeint", 0, 0);
+    pp1.setProcedureParameters(Arrays.asList(new Attrib(new IntegerType())));
+    pt = new ProcedureType(new VoidType());
+    pp1.setType(pt);
+    symboltable.addSymbol(pp1);
 
-        Symbol pp2 = new Symbol(Symbol.PredefinedProcedure, "writebool", 0, 0);
-        pp2.setProcedureParameters(Arrays.asList(new Attrib(new BooleanType())));
-        pt = new ProcedureType(new VoidType());
-        pp2.setType(pt);
-        symboltable.addSymbol(pp2);
+    Symbol pp2 = new Symbol(Symbol.PredefinedProcedure, "writebool", 0, 0);
+    pp2.setProcedureParameters(Arrays.asList(new Attrib(new BooleanType())));
+    pt = new ProcedureType(new VoidType());
+    pp2.setType(pt);
+    symboltable.addSymbol(pp2);
 
-        Symbol pp3 = new Symbol(Symbol.PredefinedProcedure, "writeln", 0, 0);
-        pp3.setProcedureParameters(new ArrayList<Attrib>());
-        pt = new ProcedureType(new VoidType());
-        pp3.setType(pt);
-        symboltable.addSymbol(pp3);
+    Symbol pp3 = new Symbol(Symbol.PredefinedProcedure, "writeln", 0, 0);
+    pp3.setProcedureParameters(new ArrayList<Attrib>());
+    pt = new ProcedureType(new VoidType());
+    pp3.setType(pt);
+    symboltable.addSymbol(pp3);
 
-        Symbol pp4 = new Symbol(Symbol.PredefinedProcedure, "readint", 0, 0);
-        pp4.setProcedureParameters(new ArrayList<Attrib>());
-        pt = new ProcedureType(new IntegerType());
-        pp4.setType(pt);
-        symboltable.addSymbol(pp4);
-    }
+    Symbol pp4 = new Symbol(Symbol.PredefinedProcedure, "readint", 0, 0);
+    pp4.setProcedureParameters(new ArrayList<Attrib>());
+    pt = new ProcedureType(new IntegerType());
+    pp4.setType(pt);
+    symboltable.addSymbol(pp4);
+}
     "Program" t = <ident>
     {
         symboltable.openScope(true);
@@ -119,6 +124,9 @@ void Program() throws YAPLException:
         symboltable.addSymbol(s);
         programName = t.toString();
         symboltable.openScope(true);
+
+        //Codegen
+        cg.enterProc(s);
 
     }
     ( Decl() | Procedure())*
@@ -137,6 +145,10 @@ void Program() throws YAPLException:
         if(!programName.equals(endIdent.image)) throw new YAPLException("End " + endIdent.image + " does not match program " + programName, CompilerError.EndIdentMismatch, endIdent.beginLine, endIdent.beginColumn);
         symboltable.closeScope();
         symboltable.closeScope();
+
+        //Codegen
+        cg.exitProc(s);
+
     }
     "." <EOF>
 
@@ -207,7 +219,7 @@ void TypeDecl() throws YAPLException:
          s.setType(new RecordType(t.image));
          Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
          if(checkedSymbol != null) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);
-         System.out.println("Before adding symbol: " + s.getName());
+         LoggerService.log("Before adding symbol: " + s.getName());
          symboltable.addSymbol((yapl.symbol.Symbol)s);
          symboltable.openScope(false);
      }
@@ -305,7 +317,9 @@ List<Attrib> FormalParamList() throws YAPLException:
         List<Attrib> l;
 }
 {
-    {System.out.println("Formal Paramlist incoming");}
+    {
+        LoggerService.log("Formal Paramlist incoming");
+    }
      t1 = FormalParam()
      {
         l = new ArrayList<Attrib>();
@@ -367,9 +381,13 @@ Attrib Statement() throws YAPLException:
 
 void WriteStatement() throws YAPLException:
 {
+    Token t;
 }
 {
-    "Write" <string>
+    "Write" t = <string>
+    {
+        cg.writeString(t.image.substring(1, t.image.length()-1));
+    }
 }
 
 Attrib ReturnStatement() throws YAPLException:
@@ -440,27 +458,26 @@ void Assignment() throws YAPLException:
 
     if(attrib.getType() instanceof VoidType) throw new YAPLException("using procedure proc (not a function) in expression", CompilerError.ProcNotFuncExpr, attrib.getLine(), attrib.getColumn());
 
-    System.out.println("Assignment");
-     System.out.println(checkedSymbol.getType().getClass() + " := " + attrib.getType().getClass());
+    LoggerService.log("Assignment");
+     LoggerService.log(checkedSymbol.getType().getClass() + " := " + attrib.getType().getClass());
      if(selector != null){
          if(selector.getType() instanceof ArrayType){
-             System.out.println("Selector in assignment is of type array");
+             LoggerService.log("Selector in assignment is of type array");
              ArrayType at = new ArrayType();
              at.setLength(((ArrayType)selector.getType()).getLength()+1);
              at.setTypeOfArray(((ArrayType)selector.getType()).getTypeOfArray());
              selector.setType(at);
          }else if(selector.getType() instanceof RecordType){
-             System.out.println("Selector in assignment is of type record");
+             LoggerService.log("Selector in assignment is of type record");
 
          }else{
-            System.out.println("Selector in assignment is of type " + selector.getType().getClass());
+            LoggerService.log("Selector in assignment is of type " + selector.getType().getClass());
              ArrayType at = new ArrayType();
              at.setLength(1);
              at.setTypeOfArray(selector.getType());
              selector.setType(at);
          }
-
-         System.out.println("SELEKTOR: " + selector.getType().getClass() + " := " + attrib.getType().getClass());
+         LoggerService.log("SELEKTOR: " + selector.getType().getClass() + " := " + attrib.getType().getClass());
 
         if(checkedSymbol.getType() instanceof  ArrayType){
             retAttrib.setType(((ArrayType)checkedSymbol.getType()).getArrayDiff(selector.getType()));
@@ -477,8 +494,10 @@ void Assignment() throws YAPLException:
      }
 
      Type type = attrib.getType();// instanceof  ArrayType ? ((ArrayType)attrib.getType()).getArrayDiff(((ArrayType)attrib.getType()).getDeclSymbol().getType()) : attrib.getType();
-     System.out.println("Type for left assignment: " + checkedSymbol.getType().toString());
-     System.out.println("Type for right assignment: " + attrib.getType().toString());
+
+     LoggerService.log("Type for left assignment: " + checkedSymbol.getType().toString());
+     LoggerService.log("Type for right assignment: " + attrib.getType().toString());
+
      if(!yapl.lib.Type.typeIsCompatible(retAttrib.getType(), type)){
          throw new YAPLException("type mismatch in assignment", CompilerError.TypeMismatchAssign, assigner.beginLine, assigner.beginColumn);
      }
@@ -508,14 +527,23 @@ Attrib ProcedureCall() throws YAPLException:
 
     bracket1 = "(" (l = ArgumentList())? ")"
 
+    //CODEGEN
+    {
+        if(checkedSymbol.getKind() == Symbol.PredefinedProcedure){
+            if(t.image.equals("writeln")){
+                cg.writeString("\n");
+            }
+        }
+    }
+
     //TYPECHECKING
     {
-        System.out.println("Procedure has kind: " + checkedSymbol.getKindString());
+        LoggerService.log("Procedure has kind: " + checkedSymbol.getKindString());
         if(checkedSymbol.getKind() == Symbol.Procedure || checkedSymbol.getKind() == Symbol.PredefinedProcedure){
                 if(checkedSymbol.getProcedureParameters().size() > l.size()){
                             throw new YAPLException("too few arguments for procedure " + checkedSymbol.getName(), CompilerError.TooFewArgs, bracket1.beginLine, bracket1.beginColumn+1);
                 }else{
-                    System.out.println("Test " + l.size());
+                    LoggerService.log("Test " + l.size());
                     int idx = 0;
                     for(Attrib a : l){
                         if(a.getType().getClass() == VoidType.class) throw new YAPLException("using procedure " + t.image + " (not a function) in expression" , CompilerError.ProcNotFuncExpr, a.getLine(), a.getColumn());
@@ -529,7 +557,6 @@ Attrib ProcedureCall() throws YAPLException:
 
                         idx++;
                     }
-                    System.out.println("Test");
                 }
 
         }
@@ -538,7 +565,7 @@ Attrib ProcedureCall() throws YAPLException:
         attrib.setKind((byte)s.getKind());
         //Set type of procedure declaration for comparison when assigning
         if(checkedSymbol.getType() instanceof ProcedureType){
-            System.out.println(((ProcedureType)checkedSymbol.getType()).getReturnType());
+            LoggerService.log(((ProcedureType)checkedSymbol.getType()).getReturnType());
             attrib.setType(((ProcedureType)checkedSymbol.getType()).getReturnType());
         }else{
             attrib.setType(checkedSymbol.getType());
@@ -567,8 +594,10 @@ List<Attrib> ArgumentList() throws YAPLException:
     )*
 
     {
-        /*System.out.println("Procedure parameters: " + sym.getProcedureParameters().size());
-        System.out.println("Procedure Call parameters: " + l.size());
+        /*
+        LoggerService.log("Procedure parameters: " + sym.getProcedureParameters().size());
+        LoggerService.log("Procedure Call parameters: " + l.size());
+
         if(sym.getProcedureParameters().size() != l.size()){
             throw new YAPLException("too few arguments for procedure " + sym.getName(), CompilerError.TooFewArgs, sym.getLine(), sym.getColumn());
         }*/
@@ -620,7 +649,7 @@ Attrib Expr() throws YAPLException:
 {
     (expr1 = CondAndExpr() (operator = "Or" expr2 = CondAndExpr()
     {
-        System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
+        LoggerService.log("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
         return cg.op2(expr1, operator, expr2);
     }
     )* | expr1 = CreationExpr())
@@ -640,7 +669,7 @@ Attrib CreationExpr() throws YAPLException:
     "new" type = NonArrayType() (bracket1 = "[" index = Expr() bracket2 = "]" {arrayLength++;}
     {
         if(index != null){
-                    System.out.println("Index is of type: " + index.getType());
+                    LoggerService.log("Index is of type: " + index.getType());
                     if(index.getType() instanceof ArrayType){
                         //if(((ArrayType)index.getType()).getArrayDiff(retAttrib.getType()).getClass() == IntegerType.class) throw new YAPLException("array index or dimension is not an integer type", CompilerError.BadArraySelector, bracket2.beginLine, bracket2.beginColumn);
                     }else{
@@ -656,7 +685,7 @@ Attrib CreationExpr() throws YAPLException:
     attrib = new Attrib();
     //Set alternative type if array
     if(arrayLength > 0){
-        System.out.println("New array is of length " + arrayLength + " and type '" + type + "'");
+        LoggerService.log("New array is of length " + arrayLength + " and type '" + type + "'");
         ArrayType t = new ArrayType();
         t.setTypeOfArray(type);
         t.setLength(arrayLength);
@@ -676,7 +705,7 @@ Attrib CondAndExpr() throws YAPLException:
 {
     expr1 = EqualExpr() (operator = "And" expr2 = EqualExpr()
     {
-        System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
+        LoggerService.log("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
         expr1 = cg.op2(expr1, operator, expr2);
     }
     )*
@@ -692,7 +721,7 @@ Attrib EqualExpr() throws YAPLException:
 {
     expr1 = RelExpr() (operator = EqualOp() expr2 = RelExpr()
     {
-        System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
+        LoggerService.log("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
         expr1 = cg.equalOp(expr1, operator, expr2);
     }
     )?
@@ -709,7 +738,7 @@ Attrib RelExpr() throws YAPLException:
 {
     expr1 = AddExpr() (operator = RelOp() expr2 = AddExpr()
     {
-        System.out.println("Type RelExpr: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
+        LoggerService.log("Type RelExpr: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
         expr1 = cg.relOp(expr1, operator, expr2);
     }
     )?
@@ -725,7 +754,7 @@ Attrib AddExpr() throws YAPLException:
 {
     expr1 = MulExpr() (operator = AddOp() expr2 = MulExpr()
     {
-        System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
+        LoggerService.log("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
         expr1 = cg.op2(expr1, operator, expr2);
     }
     )*
@@ -742,7 +771,7 @@ Attrib MulExpr() throws YAPLException:
 {
     expr1 = UnaryExpr() (operator = MulOp() expr2 = UnaryExpr()
     {
-        System.out.println("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
+        LoggerService.log("Type1: " + expr1.getType() + ", Operator: " + operator.image + ", Type2: " + expr2.getType());
         expr1 = cg.op2(expr1, operator, expr2);
     }
     )*
@@ -758,11 +787,12 @@ Attrib UnaryExpr() throws YAPLException:
 {
     (operator = AddOp())? expr = PrimaryExpr()
     {
-        System.out.print("Type1: " + expr.getType());
+        LoggerService.log("Type1: " + expr.getType());
+
         if(operator != null){
-            System.out.println(", Operator: " + operator.image);
+            LoggerService.log(", Operator: " + operator.image);
         }else{
-            System.out.println();
+
         }
         return cg.op1(operator, expr);
     }
@@ -795,13 +825,13 @@ Attrib PrimaryExpr() throws YAPLException:
 
     {
         Attrib retAttrib = new Attrib();
-        System.out.println("line: " + t.beginLine);
+        LoggerService.log("line: " + t.beginLine);
         retAttrib.setLine(t.beginLine);
-        System.out.println("column: " + t.beginColumn);
+        LoggerService.log("column: " + t.beginColumn);
         retAttrib.setColumn(t.beginColumn);
         Type type = checkedSymbol.getType();
 
-        System.out.println("Checked symbol '" + checkedSymbol.getName() + "' of type: " + checkedSymbol.getType());
+        LoggerService.log("Checked symbol '" + checkedSymbol.getName() + "' of type: " + checkedSymbol.getType());
         if(selAttrib != null){
             //Check, if symbol before [] is of ArrayType
             //if(selAttrib.getType().getClass() == ArrayType.class && checkedSymbol.getType().getClass() != ArrayType.class) throw new YAPLException("expression before '[' is not an array type", CompilerError.SelectorNotArray, t.beginLine, t.beginColumn+1);
@@ -888,7 +918,7 @@ Attrib Selector(Attrib retAttrib) throws YAPLException:
     }else{
         //Throw new error if indey.type != IntegerType
         if(index != null){
-            System.out.println("Index is of type: " + index.getType());
+            LoggerService.log("Index is of type: " + index.getType());
             if(index.getType() instanceof ArrayType){
                 if(((ArrayType)index.getType()).getArrayDiff(retAttrib.getType()).getClass() == IntegerType.class) throw new YAPLException("array index or dimension is not an integer type", CompilerError.BadArraySelector, bracket2.beginLine, bracket2.beginColumn);
             }else{
@@ -908,7 +938,8 @@ Attrib Selector(Attrib retAttrib) throws YAPLException:
             attrib.setType(at);
         }
     }
-    System.out.println("RETURNING SELECTOR: " + attrib.getType());
+
+    LoggerService.log("RETURNING SELECTOR: " + attrib.getType());
     return attrib;
 }
 }

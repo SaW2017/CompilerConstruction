@@ -1,10 +1,12 @@
 package yapl.compiler;
 
 import yapl.compiler.Attrib;
+import yapl.impl.BackendMJ;
 import yapl.interfaces.CompilerError;
 import yapl.interfaces.Symbol;
 import yapl.lib.*;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.UUID;
 public class CodeGen {
 
     String label;
+    BackendMJ be = new BackendMJ();
+    String filename = "";
 
     public CodeGen() {
     }
@@ -147,7 +151,8 @@ public class CodeGen {
 
     
     public void writeString(String string) throws YAPLException {
-
+        int addr = be.allocStringConstant(string);
+        be.writeString(addr);
     }
 
     
@@ -158,5 +163,17 @@ public class CodeGen {
     
     public void jump(String label) {
 
+    }
+
+    public void end(){
+        try{
+            be.writeObjectFile(new FileOutputStream(filename));
+        }catch (Exception ex){};
+
+        System.out.println("wrote object file to " + filename);
+    }
+
+    public void setFileName(String s){
+        this.filename = s.substring(0, s.length()-4);
     }
 }

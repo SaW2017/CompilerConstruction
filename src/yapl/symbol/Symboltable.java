@@ -1,5 +1,6 @@
 package yapl.symbol;
 
+import yapl.LoggerService;
 import yapl.interfaces.CompilerError;
 import yapl.interfaces.Symbol;
 import yapl.lib.YAPLException;
@@ -34,7 +35,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
 
     @Override
     public void addSymbol(Symbol s) throws YAPLException {
-        System.out.println("Adding symbol: " + s.getName());
+        LoggerService.log("Adding symbol: " + s.getName());
         if (currentScope.hasSymbol(s.getName()) || currentScope.hasSymbol((yapl.symbol.Symbol) s)) {
             Symbol existingSymbol = currentScope.getSymbols().get(s.getName());
             if(s.getKindString() != null ){ //&& s.getKind() == existingSymbol.getKind()) {
@@ -52,7 +53,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
     public Symbol lookup(String name, int line, int column) throws YAPLException {
         Symbol s = null;
 
-        System.out.println("Looking for '" + name + "' in line/col " + line + "/" + column);
+        LoggerService.log("Looking for '" + name + "' in line/col " + line + "/" + column);
 
         currentScope.hasSymbol(name);
 
@@ -70,7 +71,7 @@ public class Symboltable implements yapl.interfaces.Symboltable {
     public Symbol checkScope(Scope scope, String name) {
         Symbol s = null;
 
-        System.out.println("Looking for '" + name + "' in Scope with symbols: " + scope.getSymbols().keySet());
+        LoggerService.log("Looking for '" + name + "' in Scope with symbols: " + scope.getSymbols().keySet());
 
         if (scope.hasSymbol(name)) return scope.getSymbols().get(name);
 
