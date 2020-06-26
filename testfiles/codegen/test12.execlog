@@ -1,0 +1,5 @@
+printLocal: m = 100 (100 expected)
+printGlobal: m = 0--- Start test12 ---
+ (5 expected)
+ (10 expected)
+--- End test12 ---

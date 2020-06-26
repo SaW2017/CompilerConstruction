@@ -1,0 +1,5 @@
+printInt: value = 0print3: value1 = 0, value2 = 0, bvalue = False--- Start test13 ---
+ (10 expected)
+ (50 expected)
+ (20, 51, False expected)
+--- End test13 ---

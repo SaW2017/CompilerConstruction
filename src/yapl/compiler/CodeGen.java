@@ -42,7 +42,10 @@ public class CodeGen {
     }
     
     public void allocVariable(Symbol sym) throws YAPLException {
-
+        if (sym.isGlobal())
+            sym.setOffset(be.allocStaticData(1));
+        else
+            sym.setOffset(be.allocStack(1));
     }
 
     
@@ -96,7 +99,12 @@ public class CodeGen {
         if(!(op.image.equals("+") || op.image.equals("-"))) throw new YAPLException("Internal error.", CompilerError.Internal, op.beginLine, op.beginColumn);
         if(!(x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for unary operator " + op.image, CompilerError.IllegalOp1Type, op.beginLine, op.beginColumn);
 
-        return x;
+        if(op.image.equals("+")){
+            return x;
+        }else{
+            ((IntegerType)x.getType()).setValue(Integer.parseInt("-" + String.valueOf(((IntegerType)x.getType()).getValue())));
+            return x;
+        }
     }
 
     
@@ -109,6 +117,35 @@ public class CodeGen {
             if(!(x.getType() instanceof BooleanType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type, op.beginLine, op.beginColumn);
         }
 
+        switch(op.image){
+            case "+":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new IntegerType(((IntegerType)x.getType()).getValue() + ((IntegerType)y.getType()).getValue()));
+                }
+                break;
+            case "-":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new IntegerType(((IntegerType)x.getType()).getValue() - ((IntegerType)y.getType()).getValue()));
+                }
+                break;
+            case "*":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new IntegerType(((IntegerType)x.getType()).getValue() * ((IntegerType)y.getType()).getValue()));
+                }
+                break;
+            case "/":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new IntegerType(((IntegerType)x.getType()).getValue() / ((IntegerType)y.getType()).getValue()));
+                }
+                break;
+            case "%":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new IntegerType(((IntegerType)x.getType()).getValue() % ((IntegerType)y.getType()).getValue()));
+                }
+                break;
+
+        }
+
         return y;
     }
 
@@ -118,6 +155,29 @@ public class CodeGen {
         if(!(op.image.equals("<") || op.image.equals("<=") || op.image.equals(">=") || op.image.equals(">"))) throw new YAPLException("Illegal operand type for relational operator " + op.image, CompilerError.Internal);
         if(!(x.getType() instanceof IntegerType && y.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalRelOpType, op.beginLine, op.beginColumn);
 
+        switch (op.image){
+            case "<":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new BooleanType(((IntegerType)x.getType()).getValue() < ((IntegerType)y.getType()).getValue()), y.getLine(), y.getColumn());
+                }
+                break;
+            case "<=":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new BooleanType(((IntegerType)x.getType()).getValue() <= ((IntegerType)y.getType()).getValue()), y.getLine(), y.getColumn());
+                }
+                break;
+            case ">":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new BooleanType(((IntegerType)x.getType()).getValue() > ((IntegerType)y.getType()).getValue()), y.getLine(), y.getColumn());
+                }
+                break;
+            case ">=":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new BooleanType(((IntegerType)x.getType()).getValue() >= ((IntegerType)y.getType()).getValue()), y.getLine(), y.getColumn());
+                }
+                break;
+        }
+
         return new Attrib(new BooleanType(), y.getLine(), y.getColumn());
     }
 
@@ -125,6 +185,16 @@ public class CodeGen {
     public Attrib equalOp(Attrib x, Token op, Attrib y) throws YAPLException {
         if(!Type.typeIsCompatible(x.getType(), y.getType())) throw new YAPLException("Illegal operand type for equality operator " + op.image, CompilerError.IllegalEqualOpType, op.beginLine, op.beginColumn);
         if(!(x.getType() instanceof BooleanType || x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for equality operator " + op.image, CompilerError.IllegalEqualOpType, op.beginLine, op.beginColumn);
+
+        switch (op.image){
+            case "==":
+                if(y.getType().getClass() == IntegerType.class){
+                    return new Attrib(new BooleanType(((IntegerType)x.getType()).getValue() == ((IntegerType)y.getType()).getValue()), y.getLine(), y.getColumn());
+                }else if(y.getType().getClass() == BooleanType.class){
+                    return new Attrib(new BooleanType(((BooleanType)x.getType()).getValue() == ((BooleanType)y.getType()).getValue()), y.getLine(), y.getColumn());
+                }
+                break;
+        }
 
         return new Attrib(new BooleanType());
     }
@@ -157,7 +227,6 @@ public class CodeGen {
 
     
     public void branchIfFalse(Attrib condition, String label) throws YAPLException {
-
     }
 
     
@@ -167,13 +236,13 @@ public class CodeGen {
 
     public void end(){
         try{
-            be.writeObjectFile(new FileOutputStream(filename));
+            be.writeObjectFile(new FileOutputStream(filename.substring(0, filename.length()-5) + ".mj"));
         }catch (Exception ex){};
 
         System.out.println("wrote object file to " + filename);
     }
 
     public void setFileName(String s){
-        this.filename = s.substring(0, s.length()-4);
+        this.filename = s.substring(0, s.length());
     }
 }

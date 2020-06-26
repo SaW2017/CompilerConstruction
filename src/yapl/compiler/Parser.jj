@@ -26,7 +26,7 @@ public class Parser {
 
   /** Main entry point. */
   public static void main(String args[]) {
-
+        System.out.println("Filename" + args[0]);
         if(args.length < 1){
             System.out.println("Not enough arguments! Please enter file path.");
             return;
@@ -192,6 +192,7 @@ void VarDecl() throws YAPLException:
         Symbol s = new Symbol(Symbol.Variable, t.image, t.beginLine, t.beginColumn);
         s.setType(type);
         Symbol checkedSymbol = (yapl.symbol.Symbol)symboltable.getSymbolFromCurrentScope(t.image);
+        cg.allocVariable(s);
 
         if(checkedSymbol != null) throw new YAPLException("Identifier '" + t.image + "' already declared in current scope (as " + checkedSymbol.getKindString().toLowerCase() + ")", CompilerError.SymbolExists, t.beginLine, t.beginColumn);
         symboltable.addSymbol((yapl.symbol.Symbol)s);
@@ -489,6 +490,16 @@ void Assignment() throws YAPLException:
 
             retAttrib.setType(((ArrayType)checkedSymbol.getType()).getArrayDiff(new IntegerType()));
         }else{
+            System.out.println("Attrib: " + attrib.getType());
+
+            if(attrib.getType().getClass() == BooleanType.class){
+                System.out.println(((BooleanType)attrib.getType()).getValue());
+                ((BooleanType)checkedSymbol.getType()).setValue(((BooleanType)attrib.getType()).getValue());
+            }else if(attrib.getType().getClass() == IntegerType.class){
+                System.out.println(((IntegerType)attrib.getType()).getValue());
+                ((IntegerType)checkedSymbol.getType()).setValue(((IntegerType)attrib.getType()).getValue());
+            }
+
             retAttrib.setType(checkedSymbol.getType());
         }
      }
@@ -530,8 +541,15 @@ Attrib ProcedureCall() throws YAPLException:
     //CODEGEN
     {
         if(checkedSymbol.getKind() == Symbol.PredefinedProcedure){
+            System.out.println(Arrays.toString(l.toArray()));
             if(t.image.equals("writeln")){
                 cg.writeString("\n");
+            }else if(t.image.equals("writeint")){
+                System.out.println(((IntegerType)l.get(0).getType()).getValue());
+                cg.writeString(Integer.toString(((IntegerType)l.get(0).getType()).getValue()));
+            }else if(t.image.equals("writebool")){
+                System.out.println(((BooleanType)l.get(0).getType()).getValue());
+                cg.writeString(((BooleanType)l.get(0).getType()).getValue() == true ? "True" : "False");
             }
         }
     }
@@ -950,7 +968,7 @@ Attrib Literal() throws YAPLException:
        Token t;
 }
 {
-    t = "True" {return new Attrib(new BooleanType(true), t.beginLine, t.beginColumn);} | t = "False" {return new Attrib(new BooleanType(false), t.beginLine, t.beginColumn);} | t = <number> {return new Attrib(new IntegerType(), t.beginLine, t.beginColumn);}
+    t = "True" {return new Attrib(new BooleanType(true), t.beginLine, t.beginColumn);} | t = "False" {return new Attrib(new BooleanType(false), t.beginLine, t.beginColumn);} | t = <number> {return new Attrib(new IntegerType(Integer.parseInt(t.image)), t.beginLine, t.beginColumn);}
 }
 //_______________END OF EXPRESSIONs____
 
