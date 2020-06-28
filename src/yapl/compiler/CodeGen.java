@@ -109,7 +109,6 @@ public class CodeGen {
 
     
     public Attrib op2(Attrib x, Token op, Attrib y) throws YAPLException {
-        //TODO: Check for valid binary operator;
 
         if(!Type.typeIsCompatible(x.getType(), y.getType())) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type, op.beginLine, op.beginColumn);
         if(op.image.equals("And") || op.image.equals("Or")){

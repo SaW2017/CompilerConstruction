@@ -248,10 +248,13 @@ public class BackendMJ implements BackendBinSM {
     }
 
     private void compareValues(byte instr){
+        //the two variables to compare muste be already on the stack
+        //if the compare is true => 1 is on the top of the stack
+        //else => 0 is on the top of the stack
         code.add(instr);
-        code.add((byte)((code.size()+5)>>8));
+        code.add((byte)((code.size()+5)>>8));   //address of load const1
         code.add((byte)(code.size()+5));
-        code.add(MJVMInstructions.CONST0);
+        code.add(MJVMInstructions.CONST0);      //if compare failes
         code.add(MJVMInstructions.JMP);
         code.add((byte)((code.size()+2)>>8));
         code.add((byte)(code.size()+2));
