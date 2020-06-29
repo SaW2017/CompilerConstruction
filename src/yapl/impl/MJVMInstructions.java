@@ -68,5 +68,4 @@ public class MJVMInstructions {
     public static final byte BPRINT = 0x35;
     public static final byte TRAP = 0x36;
     public static final byte SPRINT = 0x37;
-
 }

@@ -1,8 +1,9 @@
 package yapl.lib;
 
 public class Operatoren {
+// it`s helper class for using the Operators
 
-//    Arithmetic Oper
+//    Arithmetic Operators
     public static final String Add       = "+";
     public static final String Sub       = "-";
     public static final String Mult      = "*";
@@ -10,7 +11,6 @@ public class Operatoren {
     public static final String Mod       = "%";
 
     public static final String[] ArithmeticOps = {Add, Sub, Mult, Div, Mod};
-
 
 //    equalExp
     public static final String Equal            = "==";

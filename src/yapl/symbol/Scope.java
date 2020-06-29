@@ -5,11 +5,14 @@ import java.util.Map;
 
 public class Scope {
 
+    //every Scope has a Hasmap with symbols (name, symbol)
     private Map<String, Symbol> symbols = new HashMap<>();
     private boolean isGlobal;
     private Symbol parentSymbol;
     private Scope parentScope;
 
+    // if a new scope is created we`re setting if its global, and the parentSymbol
+    // and the parentScope --> its helpful for the symbol lookup
     public Scope(boolean isGlobal, Symbol parentSymbol, Scope parentScope){
         this.isGlobal = isGlobal;
         this.parentSymbol = parentSymbol;
@@ -52,10 +55,12 @@ public class Scope {
         symbols.put(name, s);
     }
 
+    // check if Scope contains symbol with given name
     public boolean hasSymbol(String name){
         return symbols.containsKey(name) ? true : false;
     }
 
+    // check if Scope contains given symbol
     public boolean hasSymbol(Symbol symbol){
         return symbols.containsValue(symbol) ? true : false;
     }

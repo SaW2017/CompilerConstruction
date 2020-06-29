@@ -4,11 +4,13 @@ import yapl.interfaces.CompilerError;
 
 public class YAPLException extends Exception implements CompilerError {
 
-    String msg;
-    int errorNumber;
+    String msg;  // errormsg
+    int errorNumber; // what kind of error it is
+    // line & column in which error occured
     int line;
     int column;
 
+    // differents overloaded constructors for different purposes
     public YAPLException(){}
     public YAPLException(String msg){ this.msg = msg; }
     public YAPLException(String msg, int errorNumber){
