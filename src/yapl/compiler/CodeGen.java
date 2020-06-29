@@ -15,7 +15,9 @@ import java.util.UUID;
 public class CodeGen {
 
     String label;
+    //generates the code
     BackendMJ be = new BackendMJ();
+    //name of the code file
     String filename = "";
 
     public CodeGen() {
@@ -40,8 +42,14 @@ public class CodeGen {
     public void freeReg(Attrib attr) {
 
     }
-    
+
+    /**
+     * Allocates a variable in the static data array or on the stack
+     * @param sym
+     * @throws YAPLException
+     */
     public void allocVariable(Symbol sym) throws YAPLException {
+        //if variable is global => allocate it in the static data area
         if (sym.isGlobal())
             sym.setOffset(be.allocStaticData(1));
         else
@@ -93,29 +101,52 @@ public class CodeGen {
 
     }
 
-    
+    /**
+     * For signed expressions.
+     * E.g. -7 or -(5+3)
+     * @param op
+     * @param x
+     * @return
+     * @throws YAPLException
+     */
     public Attrib op1(Token op, Attrib x) throws YAPLException {
         if(op == null) return x;
+        //sign must be plus or minus
         if(!(op.image.equals("+") || op.image.equals("-"))) throw new YAPLException("Internal error.", CompilerError.Internal, op.beginLine, op.beginColumn);
+        //the following attribute must be an integer
         if(!(x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for unary operator " + op.image, CompilerError.IllegalOp1Type, op.beginLine, op.beginColumn);
 
+        //if sign is plus => do nothing
+        //else negate the value of x
         if(op.image.equals("+")){
             return x;
+
         }else{
             ((IntegerType)x.getType()).setValue(Integer.parseInt("-" + String.valueOf(((IntegerType)x.getType()).getValue())));
             return x;
         }
     }
 
-    
+    /**
+     * For expressions with two variables and arithmetic operator. This methode takes the two attributes and the operator and returns the result as a new attribute.
+     * @param x
+     * @param op
+     * @param y
+     * @return
+     * @throws YAPLException
+     */
     public Attrib op2(Attrib x, Token op, Attrib y) throws YAPLException {
 
+        //check if the two attributes are compatible
         if(!Type.typeIsCompatible(x.getType(), y.getType())) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type, op.beginLine, op.beginColumn);
+        //check if the operator is a valid arithmetic operation
         if(op.image.equals("And") || op.image.equals("Or")){
 
             if(!(x.getType() instanceof BooleanType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalOp2Type, op.beginLine, op.beginColumn);
         }
 
+        //compute the new attribute depending on the operation
+        //e.g. if operation == "+": compute the sum of the two attributes
         switch(op.image){
             case "+":
                 if(y.getType().getClass() == IntegerType.class){
@@ -148,12 +179,23 @@ public class CodeGen {
         return y;
     }
 
-    
+    /**
+     * For expressions with two variables and relation operator.
+     * @param x
+     * @param op
+     * @param y
+     * @return
+     * @throws YAPLException
+     */
     public Attrib relOp(Attrib x, Token op, Attrib y) throws YAPLException {
+        //check for valid operator
         //"<" | "<=" | ">=" | ">"
         if(!(op.image.equals("<") || op.image.equals("<=") || op.image.equals(">=") || op.image.equals(">"))) throw new YAPLException("Illegal operand type for relational operator " + op.image, CompilerError.Internal);
+
+        //check if the attributes are integer values
         if(!(x.getType() instanceof IntegerType && y.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand types for binary operator " + op.image, CompilerError.IllegalRelOpType, op.beginLine, op.beginColumn);
 
+        //compute result and generate new attribute
         switch (op.image){
             case "<":
                 if(y.getType().getClass() == IntegerType.class){
@@ -180,11 +222,22 @@ public class CodeGen {
         return new Attrib(new BooleanType(), y.getLine(), y.getColumn());
     }
 
-    
+    /**
+     * For expressions with equal operator. This is an extra relOp, because this can be used for boolean expressions too.
+     * @param x
+     * @param op
+     * @param y
+     * @return
+     * @throws YAPLException
+     */
     public Attrib equalOp(Attrib x, Token op, Attrib y) throws YAPLException {
+
+        //check if types are compatible
         if(!Type.typeIsCompatible(x.getType(), y.getType())) throw new YAPLException("Illegal operand type for equality operator " + op.image, CompilerError.IllegalEqualOpType, op.beginLine, op.beginColumn);
+        //check if the type is integer or boolean
         if(!(x.getType() instanceof BooleanType || x.getType() instanceof IntegerType)) throw new YAPLException("Illegal operand type for equality operator " + op.image, CompilerError.IllegalEqualOpType, op.beginLine, op.beginColumn);
 
+        //compute result and generate new attribute
         switch (op.image){
             case "==":
                 if(y.getType().getClass() == IntegerType.class){
@@ -218,9 +271,15 @@ public class CodeGen {
         return null;
     }
 
-    
+    /**
+     * This stores a string in the static area field and prints it
+     * @param string
+     * @throws YAPLException
+     */
     public void writeString(String string) throws YAPLException {
+        //store string in static data
         int addr = be.allocStringConstant(string);
+        //takes the addr of the string in the static data area and prints it
         be.writeString(addr);
     }
 
@@ -233,6 +292,9 @@ public class CodeGen {
 
     }
 
+    /**
+     * Stores the generated code into the predefined file
+     */
     public void end(){
         try{
             be.writeObjectFile(new FileOutputStream(filename.substring(0, filename.length()-5) + ".mj"));
@@ -241,6 +303,10 @@ public class CodeGen {
         System.out.println("wrote object file to " + filename);
     }
 
+    /**
+     * Sets the name of the file, which contains the code
+     * @param s
+     */
     public void setFileName(String s){
         this.filename = s.substring(0, s.length());
     }

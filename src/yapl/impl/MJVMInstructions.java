@@ -1,6 +1,12 @@
 package yapl.impl;
 
+/**
+ * Contains all available machine code instructions of the MJVM
+ */
+
 public class MJVMInstructions {
+
+
 
     public static final int WORD_SIZE = 4;
 

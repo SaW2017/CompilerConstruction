@@ -49,6 +49,11 @@ public class MJVMByteCodeHelper {
         return listToPrimitiveByte(totalCode);
     }
 
+    /**
+     * Convertes the Byte-List to a byte array
+     * @param byteList
+     * @return
+     */
     private static byte[] listToPrimitiveByte(List<Byte> byteList){
         byte[] data = new byte[byteList.size()];
 

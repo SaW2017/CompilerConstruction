@@ -12,20 +12,26 @@ import java.util.Map;
 
 public class BackendMJ implements BackendBinSM {
 
-
+    //contains the generated code
     private List<Byte> code = new ArrayList<>();
+    //contains the generated static data
     private List<Byte> sData = new ArrayList<>();
+    //contains labels, which are declared
     private HashMap<String, Integer> labels = new HashMap<>();
+    //contains labels, which are unknown at the first call
     private HashMap<String, Integer> unknownLabels = new HashMap<>();
+    //start address of the program
     private int pcStart = 0;
 
 
-    //procedure
+    //for procedures
     private int fsAddress = 0;
     private int fsLocalVariables = 0;
     private int params = 0;
 
     public BackendMJ(){
+        //write 2 words (8 byte) into the static data area at the beginning
+        //this is important for later instructions
         for(int i = 0; i < 8; i++){
             sData.add((byte)0);
         }
@@ -62,12 +68,13 @@ public class BackendMJ implements BackendBinSM {
             code.set(replaceAddress, (byte)(labelAddress>>8));
             code.set(replaceAddress+1, (byte)labelAddress);
         }
-
+        //generate code by using the helper class for the header and static data area
         outStream.write(MJVMByteCodeHelper.createByteCode(code, sData, pcStart));
     }
 
     @Override
     public int allocStaticData(int words) {
+        //writes for each word 4 empty bytes into the static data area and returns the address of the first word
         int startAddress = sData.size()/MJVMInstructions.WORD_SIZE;
 
         for(int i = 0; i < words*4; i++){
@@ -79,12 +86,16 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public int allocStringConstant(String string) {
+
+        //calculate start address
         int startAddress = sData.size()/MJVMInstructions.WORD_SIZE;
 
+        //store the chars of the string into the static area
         for (byte b : string.getBytes()) {
             sData.add(b);
         }
 
+        //add the null termination of the string
         sData.add((byte) 0x00);
 
         //fill the rest of the remaining word with zeros
@@ -108,7 +119,7 @@ public class BackendMJ implements BackendBinSM {
     @Override
     public void allocHeap(int words) {
         code.add(MJVMInstructions.NEW);
-        code.add((byte)(words>>8));
+        code.add((byte)(words>>8)); //new requires the length of the data in words
         code.add((byte)words);
     }
 
@@ -134,6 +145,7 @@ public class BackendMJ implements BackendBinSM {
     @Override
     public void loadConst(int value) {
         code.add(MJVMInstructions.CONST);
+        //the 32bit constant
         code.add((byte) (value>>24));
         code.add((byte) (value>>16));
         code.add((byte) (value>>8));
@@ -143,6 +155,8 @@ public class BackendMJ implements BackendBinSM {
     @Override
     public void loadWord(MemoryRegion region, int offset) {
 
+        //check where the word needs to be loaded
+        //each instruction needs the address followed
         if(region == MemoryRegion.STACK){
             code.add(MJVMInstructions.LOAD);
             code.add((byte)offset);
@@ -159,6 +173,9 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void storeWord(MemoryRegion region, int offset) {
+
+        //check where the word needs to be stored
+        //each instruction needs the address followed
         if(region == MemoryRegion.STACK){
             code.add(MJVMInstructions.STORE);
             code.add((byte)offset);
@@ -199,6 +216,7 @@ public class BackendMJ implements BackendBinSM {
     @Override
     public void writeString(int addr) {
         code.add(MJVMInstructions.SPRINT);
+        //address of the string
         code.add((byte)(addr>>8));
         code.add((byte)(addr));
     }
@@ -240,6 +258,7 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void or(){
+        //or operation with arithmetic operations
         code.add(MJVMInstructions.ADD);
         code.add(MJVMInstructions.CONST1);
         code.add(MJVMInstructions.ADD);
@@ -293,8 +312,11 @@ public class BackendMJ implements BackendBinSM {
         }else{
             code.add(MJVMInstructions.CONST0);    //for false
         }
-        //unknownLabels.put(label, code.size());
+
         code.add(MJVMInstructions.JEQ);
+        //in most of the cases we dont know the label to jump
+        //therefore, we store the name of the label and search for the address of the label at the end by calling
+        //writeObjectFile...
         unknownLabels.put(label, code.size());
         code.add((byte)0);
         code.add((byte)0);
@@ -302,8 +324,11 @@ public class BackendMJ implements BackendBinSM {
 
     @Override
     public void jump(String label) {
-        //unknownLabels.put(label, code.size());
+
         code.add(MJVMInstructions.JMP);
+        //in most of the cases we dont know the label to jump
+        //therefore, we store the name of the label and search for the address of the label at the end by calling
+        //writeObjectFile...
         unknownLabels.put(label, code.size());
         code.add((byte)0);
         code.add((byte)0);
@@ -312,21 +337,13 @@ public class BackendMJ implements BackendBinSM {
     @Override
     public void callProc(String label) {
 
-
-        //eigentlich hinfällig...
-        /*if(labels.containsKey(label)){
-            int address = labels.get(label);
-            code.add(MJVMInstructions.CALL);
-            code.add((byte)(address>>8));
-            code.add((byte)address);
-        }else{*/
-            //das dürfte ausreichen
-            //unknownLabels.put(label, code.size());
-            code.add(MJVMInstructions.CALL);
-            unknownLabels.put(label, code.size());
-            code.add((byte)0);
-            code.add((byte)0);
-        //}
+        code.add(MJVMInstructions.CALL);
+        //in most of the cases we dont know the label to jump
+        //therefore, we store the name of the label and search for the address of the label at the end by calling
+        //writeObjectFile...
+        unknownLabels.put(label, code.size());
+        code.add((byte)0);
+        code.add((byte)0);
 
     }
 
@@ -337,7 +354,7 @@ public class BackendMJ implements BackendBinSM {
         fsLocalVariables = 0;
         params = nParams;
 
-
+        //at this point a label is specified and we store it for later usage
         labels.put(label, code.size());
         if(main){
             pcStart = code.size();
