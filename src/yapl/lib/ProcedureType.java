@@ -3,7 +3,7 @@ package yapl.lib;
 import java.util.List;
 
 public class ProcedureType extends Type {
-
+    // stores the datatypes of the return and the parameter(s)
     public ProcedureType(Type returnType) {
         this.returnType = returnType;
     }

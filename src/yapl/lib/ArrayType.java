@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayType extends Type {
-    Symbol declSymbol;
-    Type typeOfArray;
+
+    Symbol declSymbol;  // it`s the name of the array at declaration
+    Type typeOfArray;   // what kind of (primitive) Datatype the array stores
     int length;
-
-
 
     public Type getTypeOfArray() {
         return typeOfArray;
@@ -36,6 +35,8 @@ public class ArrayType extends Type {
         this.declSymbol = declSymbol;
     }
 
+    // checks if given Type t is compatible with ArrayType or ProcedureType
+    // if its Arraytype then it checks also if they have the same length
     public boolean isCompatible(Type t){
 
         if(t instanceof ArrayType){
@@ -50,6 +51,7 @@ public class ArrayType extends Type {
         return false;
     }
 
+    // compares Arrays (length) and returns if they have the same length
     public Type getArrayDiff(Type t){
         System.out.println("\n[START Getting difference of array]");
         Type.printType(this);
@@ -61,6 +63,8 @@ public class ArrayType extends Type {
                 System.out.println(">Returning type of array: " + this.typeOfArray);
                 return this.typeOfArray;
             }
+            // if the length differs we create a new arrayType and set its Type to the type from this
+            // and length with difference from this array and t.array
             ArrayType arrayType = new ArrayType();
             arrayType.setTypeOfArray(this.getTypeOfArray());
             arrayType.setLength(Math.abs(((ArrayType) t).getLength() - this.getLength()));
@@ -68,6 +72,7 @@ public class ArrayType extends Type {
             System.out.println("[END Getting difference of array]");
             return arrayType;
         }else{
+            // if compared Element is not an array, we create a new Arraytype and set its type to the given one
             System.out.println(">Compared type is not an array");
             ArrayType arrayType = new ArrayType();
             arrayType.setTypeOfArray(this.getTypeOfArray());
@@ -77,6 +82,7 @@ public class ArrayType extends Type {
         }
     }
 
+    // creates String with information about the Array
     @Override
     public String toString() {
         return "ArrayType{" +
@@ -85,6 +91,9 @@ public class ArrayType extends Type {
                 ", length=" + length +
                 '}';
     }
+
+    // creates a new ArrayType with the same Attributes as t,
+    // if t is an arrayType, else ArrayType has Type of t and length 1
 
     public static ArrayType buildArrayTypeFromSelector(Type t){
         ArrayType at = new ArrayType();
