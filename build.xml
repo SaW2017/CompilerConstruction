@@ -61,6 +61,7 @@
                 <pathelement path="${java.class.path}"/>
             </classpath>
             <arg value="${yapl}"/>
+            <arg value="${outfile}"/>
         </java>
         <java classname="MJ.Run" classpath="${mj-jar}" fork="true" output="${execlog}">
             <arg value="${outfile}"/>
@@ -198,14 +199,16 @@
 
 
     <target name="run-st" depends="deleteJavaccClasses, javacc, compile-java">
-        <java classname="yapl.compiler.Parser" classpath="${build}" output="${log}">
-            <arg value="${yapl}"/>
+        <java classname="yapl.compiler.Parser" classpath="${build}">
+            <arg value="${yapl}.yapl"/>
+            <arg value="${outfile}"/>
         </java>
     </target>
 
-    <target name="run"><!--depends="deleteJavaccClasses, javacc, compile-java"-->
-        <java classname="yapl.compiler.Parser" classpath="${build}" output="${log}">
-            <arg value="${yapl}"/>
+    <target name="run" depends="deleteJavaccClasses, javacc, compile-java">
+        <java classname="yapl.compiler.Parser" classpath="${build}">
+            <arg value="${yapl}.yapl"/>
+            <arg value="${outfile}"/>
         </java>
     </target>
 

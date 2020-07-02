@@ -19,6 +19,7 @@ public class CodeGen {
     BackendMJ be = new BackendMJ();
     //name of the code file
     String filename = "";
+    String outputFileName;
 
     public CodeGen() {
     }
@@ -297,7 +298,7 @@ public class CodeGen {
      */
     public void end(){
         try{
-            be.writeObjectFile(new FileOutputStream(filename.substring(0, filename.length()-5) + ".mj"));
+            be.writeObjectFile(new FileOutputStream(outputFileName == null ? filename.substring(0, filename.length()-5) + ".mj" : outputFileName));
         }catch (Exception ex){};
 
         System.out.println("wrote object file to " + filename);
@@ -309,5 +310,9 @@ public class CodeGen {
      */
     public void setFileName(String s){
         this.filename = s.substring(0, s.length());
+    }
+
+    public void setOutFileName(String s){
+        this.outputFileName = s;
     }
 }

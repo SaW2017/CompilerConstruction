@@ -21,6 +21,7 @@ public class Parser {
     public static boolean printCompilerMessage = false;
 
     private static String programName = "";
+    private static String outfilePathName = "";
     private static Symboltable symboltable = new Symboltable();
     private static CodeGen cg = new CodeGen();
 
@@ -31,8 +32,14 @@ public class Parser {
             System.out.println("Not enough arguments! Please enter file path.");
             return;
         }
+
+        for(String s : args){
+            System.out.println(s);
+        }
+
         try{
             cg.setFileName(args[0]);
+            cg.setOutFileName(args[1] == null ? null : args[1]);
             Parser parser = new Parser(new FileInputStream(args[0]));
             parser.Program();
             cg.end();
